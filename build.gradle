@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'cc.kertaskerja'
-version = '0.0.1-SNAPSHOT'
+version = System.getenv("VERSION") ?: '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
@@ -64,4 +64,8 @@ bootBuildImage {
 			url = project.findProperty("registryUrl")
 		}
 	}
+}
+
+springBoot {
+	buildInfo()
 }
