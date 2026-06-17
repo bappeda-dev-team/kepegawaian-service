@@ -1,7 +1,6 @@
 spring:
-  application:
-    name: kepegawaian
-
+  datasource:
+    url: jdbc:tc:postgresql:17-alpine:///
 
 kertaskerja:
   kode-lembaga: x.xx
