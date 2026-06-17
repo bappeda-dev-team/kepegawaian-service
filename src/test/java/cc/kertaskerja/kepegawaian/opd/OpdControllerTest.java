@@ -1,12 +1,11 @@
 package cc.kertaskerja.kepegawaian.opd;
 
+import cc.kertaskerja.kepegawaian.opd.domain.Opd;
 import cc.kertaskerja.kepegawaian.opd.domain.OpdService;
 import cc.kertaskerja.kepegawaian.opd.web.OpdController;
-import cc.kertaskerja.kepegawaian.opd.web.OpdResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,18 +32,17 @@ class OpdControllerTest {
 
         when(opdService.findAllOpdAktifInLembaga())
                 .thenReturn(List.of(
-                        new OpdResponse(
+                        Opd.of(
                                 "63.11",
                                 "5.01.5.05.0.00.01.0000",
                                 "BKPSDM",
-                                "BKPSDM",
-                                "AKTIF"
+                                "BKPSDM"
                         )
                 ));
 
         mockMvc.perform(get("/opd/all"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].kodeOpd")
+                .andExpect(jsonPath("$data[0].kodeOpd")
                         .value("5.01.5.05.0.00.01.0000"));
     }
 }

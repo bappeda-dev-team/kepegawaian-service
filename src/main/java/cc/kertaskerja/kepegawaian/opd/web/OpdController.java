@@ -3,6 +3,7 @@ package cc.kertaskerja.kepegawaian.opd.web;
 import cc.kertaskerja.kepegawaian.opd.domain.Opd;
 import cc.kertaskerja.kepegawaian.opd.domain.OpdService;
 
+import cc.kertaskerja.kepegawaian.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -51,16 +52,57 @@ public class OpdController {
                     )
             ),
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
-            @ApiResponse(responseCode = "403", description = "Akses ditolak")
     })
-    public List<OpdResponse> findAll() {
-        return opdService.findAllOpdAktifInLembaga();
+    public WebResponse<List<OpdResponse>> findAll() {
+        List<OpdResponse> responses = opdService.findAllOpdAktifInLembaga()
+                .stream()
+                .map(OpdResponse::from)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "List OPD",
+                responses
+        );
     }
 
-    @GetMapping("/{kodeOpd}")
+    @GetMapping("/dropdown")
+    @Operation(
+            summary = "Daftar OPD untuk dropdown",
+            description = "Simplifikasi Data OPD untuk dropdown",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Daftar OPD berhasil diambil",
+                    content = @Content(
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = OpdDropDownResponse.class)
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
+    })
+    public WebResponse<List<OpdDropDownResponse>> dropdownAll() {
+        List<OpdDropDownResponse> responses = opdService.findAllOpdAktifInLembaga()
+                .stream()
+                .map(OpdDropDownResponse::from)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "Dropdown opd",
+                responses
+        );
+    }
+
+    @GetMapping("/show/{id}")
     @Operation(
             summary = "Detail OPD",
-            description = "Mengambil detail OPD berdasarkan kode OPD.",
+            description = "Mengambil detail OPD berdasarkan id OPD.",
             security = @SecurityRequirement(name = "sessionId")
     )
     @ApiResponses({
@@ -71,19 +113,20 @@ public class OpdController {
                             schema = @Schema(implementation = Opd.class)
                     )
             ),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "404", description = "OPD tidak ditemukan")
     })
-    public Opd findByKodeOpd(
+    public WebResponse<OpdResponse> show(
             @Parameter(
-                    description = "Kode OPD",
-                    example = "5.01.5.05.0.00.01.0000"
+                    description = "Id OPD",
+                    example = "123"
             )
-            @PathVariable String kodeOpd
+            @PathVariable Long id
     ) {
-        return opdService.findOpdByKodeOpd(kodeOpd);
+        return WebResponse.success(OpdResponse.from(opdService.findOpdById(id)));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Membuat OPD",
@@ -93,51 +136,52 @@ public class OpdController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "OPD berhasil dibuat"),
             @ApiResponse(responseCode = "400", description = "Data tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "409", description = "Kode OPD sudah terdaftar")
     })
-    public Opd create(
-            @Valid @RequestBody Opd opd
+    public WebResponse<Opd> create(
+            @Valid @RequestBody OpdCreateRequest request
     ) {
-        return opdService.save(opd);
+        Opd savedOpd = opdService.save(request.toCommand());
+        return WebResponse.success(savedOpd);
     }
 
-    @PutMapping("/{kodeOpd}")
+    @PutMapping("/update/{id}")
     @Operation(
             summary = "Memperbarui OPD",
-            description = "Memperbarui data OPD berdasarkan kode OPD.",
+            description = "Memperbarui data OPD berdasarkan id OPD.",
             security = @SecurityRequirement(name = "sessionId")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OPD berhasil diperbarui"),
-            @ApiResponse(responseCode = "400", description = "Data tidak valid")
+            @ApiResponse(responseCode = "400", description = "Data tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
     })
-    public Opd update(
-            @PathVariable String kodeOpd,
-            @Valid @RequestBody Opd opd
+    public WebResponse<Opd> update(
+            @PathVariable Long id,
+            @Valid @RequestBody OpdUpdateRequest request
     ) {
-        if (!kodeOpd.equals(opd.kodeOpd())) {
-            throw new IllegalArgumentException(
-                    "Kode OPD pada path dan body harus sama"
-            );
-        }
-
-        return opdService.updateOrCreate(opd);
+        Opd updatedOpd = opdService.update(id, request.toCommand());
+        return WebResponse.success("Update data opd berhasil", updatedOpd);
     }
 
-    @DeleteMapping("/{kodeOpd}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Menghapus OPD",
-            description = "Menghapus data OPD berdasarkan kode OPD.",
+            description = "Menghapus data OPD berdasarkan id OPD.",
             security = @SecurityRequirement(name = "sessionId")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "OPD berhasil dihapus"),
+            @ApiResponse(responseCode = "200", description = "OPD berhasil dihapus"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "404", description = "OPD tidak ditemukan")
     })
-    public void delete(
-            @PathVariable String kodeOpd
+    public WebResponse<Void> delete(
+            @PathVariable Long id
     ) {
-        opdService.delete(kodeOpd);
+        String namaOpd = opdService.findOpdById(id).namaOpd();
+        opdService.delete(id);
+        return WebResponse.deleted("OPD " + namaOpd + " berhasil dihapus");
     }
 }

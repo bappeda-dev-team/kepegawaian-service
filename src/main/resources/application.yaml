@@ -24,6 +24,8 @@ spring:
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
     schemas: kepegawaian
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
 management:
   endpoints:
@@ -42,4 +44,4 @@ management:
         enabled: true
 
 kertaskerja:
-  kode-lembaga: x.xx
+  kode-lembaga: 64.11

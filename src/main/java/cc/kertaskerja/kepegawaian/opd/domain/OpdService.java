@@ -1,12 +1,13 @@
 package cc.kertaskerja.kepegawaian.opd.domain;
 
 import cc.kertaskerja.kepegawaian.config.KertaskerjaProperties;
-import cc.kertaskerja.kepegawaian.opd.web.OpdResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class OpdService {
 
     private final OpdRepository opdRepository;
@@ -17,27 +18,16 @@ public class OpdService {
         this.kertaskerjaProperties = kertaskerjaProperties;
     }
 
-    public Iterable<Opd> findAll() {
-       return opdRepository.findAll();
-    }
-
-    public Iterable<Opd> findAllOpdInLembaga() {
-        return opdRepository.findAllByKodeLembagaOrderByNamaOpdAsc(kertaskerjaProperties.kodeLembaga());
-    }
-
-    public List<OpdResponse> findAllOpdAktifInLembaga() {
+    public List<Opd> findAllOpdAktifInLembaga() {
         return opdRepository
                 .findAllByKodeLembagaAndStatusOpdOrderByNamaOpdAsc(
                         kertaskerjaProperties.kodeLembaga(),
                         OpdStatus.AKTIF
-                )
-                .stream()
-                .map(this::toResponse)
-                .toList();
+                );
     }
 
     public Opd findOpdByKodeOpd(String kodeOpd) {
-        if (kodeOpd == null) {
+        if (kodeOpd == null || kodeOpd.isBlank()) {
             throw new IllegalArgumentException("Kode OPD tidak boleh kosong");
         }
 
@@ -45,51 +35,50 @@ public class OpdService {
                 .orElseThrow(() -> new OpdNotFoundException(kodeOpd));
     }
 
-    public Opd save(Opd opd) {
-        String kodeOpd = opd.kodeOpd();
+    public Opd findOpdById(Long id) {
+        return opdRepository.findById(id)
+                .orElseThrow(() -> new OpdNotFoundException(id));
+    }
+
+    @Transactional
+    public Opd save(Opd newOpd) {
+        String kodeOpd = newOpd.kodeOpd();
+
+        // guard
         if (opdRepository.existsByKodeOpd(kodeOpd)) {
             throw new OpdAlreadyExistsException(kodeOpd);
         }
 
-        Opd savedOpd = Opd.of(
+        return opdRepository.save(Opd.of(
                 kertaskerjaProperties.kodeLembaga(),
                 kodeOpd,
-                opd.namaOpd(),
-                opd.singkatanOpd()
-        );
-
-        return opdRepository.save(savedOpd);
+                newOpd.namaOpd(),
+                newOpd.singkatanOpd()
+        ));
     }
 
-    public void delete(String kodeOpd) {
-        opdRepository.delete(findOpdByKodeOpd(kodeOpd));
+    @Transactional
+    public Opd update(Long id, Opd updatedOpd) {
+        Opd existingOpd = findOpdById(id);
+
+        opdRepository.findByKodeOpd(updatedOpd.kodeOpd())
+                .filter(opd -> !opd.Id().equals(id))
+                .ifPresent(opd -> {
+                    throw new OpdAlreadyExistsException(updatedOpd.kodeOpd());
+                });
+
+        return opdRepository.save(
+                existingOpd.update(
+                        updatedOpd.kodeOpd(),
+                        updatedOpd.namaOpd(),
+                        updatedOpd.singkatanOpd()
+                ));
     }
 
-    public Opd updateOrCreate(Opd opd) {
-        return opdRepository.findByKodeOpd(opd.kodeOpd()).map(
-                existingOpd -> {
-                    Opd opdToUpdate = new Opd(
-                            existingOpd.Id(),
-                            existingOpd.kodeLembaga(),
-                            opd.kodeOpd(),
-                            opd.namaOpd(),
-                            opd.singkatanOpd(),
-                            opd.statusOpd(),
-                            existingOpd.createdDate(),
-                            null
-                    );
-                    return opdRepository.save(opdToUpdate);
-                }
-        ).orElseGet(() -> save(opd));
-    }
-
-    private OpdResponse toResponse(Opd opd) {
-        return new OpdResponse(
-                opd.kodeLembaga(),
-                opd.kodeOpd(),
-                opd.namaOpd(),
-                opd.singkatanOpd(),
-                opd.statusOpd().name()
-        );
+    @Transactional
+    public void delete(Long id) {
+        // guard opd not found
+        findOpdById(id);
+        opdRepository.deleteById(id);
     }
 }

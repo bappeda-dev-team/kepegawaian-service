@@ -10,7 +10,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-
 @Table(name = "opd")
 public record Opd(
         @Id Long Id,
@@ -19,14 +18,8 @@ public record Opd(
         @Pattern(regexp = "^[1-9]{2}\\.[0-9]{2}$")
         @Column("kode_lembaga") String kodeLembaga,
 
-        @NotBlank(message = "Kode OPD wajib terisi")
-        @Pattern(
-                regexp = "^[1-9]\\.[0-9]{2}\\.[0-9]\\.[0-9]{2}\\.[0-9]\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$",
-                message = "Format kode tidak valid"
-        )
         @Column("kode_opd") String kodeOpd,
 
-        @NotBlank(message = "Nama OPD wajib terisi")
         @Column("nama_opd") String namaOpd,
 
         @Column("singkatan_opd") String singkatanOpd,
@@ -53,5 +46,20 @@ public record Opd(
                 OpdStatus.AKTIF,
                 null,
                 null);
-    };
+    }
+
+    public Opd update(
+            String kodeOpd,
+            String namaOpd,
+            String singkatanOpd) {
+        return new Opd(
+                Id,
+                kodeLembaga,
+                kodeOpd,
+                namaOpd,
+                singkatanOpd,
+                statusOpd,
+                createdDate,
+                null);
+    }
 }
