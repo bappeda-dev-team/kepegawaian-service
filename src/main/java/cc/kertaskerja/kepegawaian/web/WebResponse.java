@@ -42,4 +42,13 @@ public record WebResponse<T>(
                 null
         );
     }
+
+    public static WebResponse<Void> badRequest(String message) {
+        return new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                message,
+                null
+        );
+    }
 }
