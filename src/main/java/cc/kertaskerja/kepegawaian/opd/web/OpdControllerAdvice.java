@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-@SuppressWarnings("unused")
 public class OpdControllerAdvice {
     @ExceptionHandler(OpdNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
