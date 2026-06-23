@@ -1,8 +1,6 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
-import cc.kertaskerja.kepegawaian.master_jabatan.domain.JabatanJenjang;
-import cc.kertaskerja.kepegawaian.master_jabatan.domain.JabatanStatus;
-import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatan;
+import cc.kertaskerja.kepegawaian.master_jabatan.domain.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,7 +10,7 @@ public record MasterJabatanCreateRequest(
         String namaJabatan,
 
         @NotNull(message = "Jenjang jabatan wajib terisi")
-        JabatanJenjang jenjangJabatan
+        MasterJabatanJenjang jenjangJabatan
 ) {
 
     public MasterJabatan toCommand() {
@@ -20,7 +18,7 @@ public record MasterJabatanCreateRequest(
     null,
                 namaJabatan,
                 jenjangJabatan,
-                JabatanStatus.AKTIF
+                MasterJabatanStatus.AKTIF
         );
     }
 }

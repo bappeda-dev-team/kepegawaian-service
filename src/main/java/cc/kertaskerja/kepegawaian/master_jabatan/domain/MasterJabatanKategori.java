@@ -1,6 +1,6 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
-public enum JabatanKategori {
+public enum MasterJabatanKategori {
     PIMPINAN_TINGGI("Jabatan Pimpinan Tinggi"),
     STRUKTURAL("Jabatan Struktural"),
     FUNGSIONAL_AHLI("Jabatan Fungsional Ahli"),
@@ -11,7 +11,7 @@ public enum JabatanKategori {
 
     private final String label;
 
-    JabatanKategori(String label) {
+    MasterJabatanKategori(String label) {
         this.label = label;
     }
 

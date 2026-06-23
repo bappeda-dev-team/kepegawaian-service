@@ -20,10 +20,10 @@ public record MasterJabatan(
         String namaJabatan,
 
         @Column("jenjang_jabatan")
-        JabatanJenjang jenjangJabatan,
+        MasterJabatanJenjang jenjangJabatan,
 
         @Column("status_jabatan")
-        JabatanStatus statusJabatan,
+        MasterJabatanStatus statusJabatan,
 
         @CreatedDate
         Instant createdDate,
@@ -35,8 +35,8 @@ public record MasterJabatan(
         public static MasterJabatan of(
             String kodeJabatan,
             String namaJabatan,
-            JabatanJenjang jenjangJabatan,
-            JabatanStatus statusJabatan) {
+            MasterJabatanJenjang jenjangJabatan,
+            MasterJabatanStatus statusJabatan) {
                 return new MasterJabatan(
                         null,
                         kodeJabatan,
@@ -49,7 +49,7 @@ public record MasterJabatan(
 
         public MasterJabatan update(
                 String namaJabatan,
-                JabatanJenjang jenjangJabatan,
+                MasterJabatanJenjang jenjangJabatan,
                 String kodeJabatan
         ) {
                 return new MasterJabatan(

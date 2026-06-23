@@ -71,10 +71,10 @@ public class MasterJabatanController {
             summary = "Daftar jenjang jabatan",
             description = "Mengambil daftar jenjang jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<JabatanJenjangResponse>> listJenjang() {
-        List<JabatanJenjangResponse> responses = masterJabatanService.listJenjangJabatan()
+    public WebResponse<List<MasterJabatanJenjangResponse>> listJenjang() {
+        List<MasterJabatanJenjangResponse> responses = masterJabatanService.listJenjangJabatan()
                 .stream()
-                .map(JabatanJenjangResponse::from)
+                .map(MasterJabatanJenjangResponse::from)
                 .toList();
 
         return WebResponse.success(responses);
@@ -85,10 +85,10 @@ public class MasterJabatanController {
             summary = "Daftar kategori jabatan",
             description = "Mengambil daftar kategori jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<JabatanKategoriResponse>> listKategori() {
-        List<JabatanKategoriResponse> responses = masterJabatanService.listKategoriJabatan()
+    public WebResponse<List<MasterJabatanKategoriResponse>> listKategori() {
+        List<MasterJabatanKategoriResponse> responses = masterJabatanService.listKategoriJabatan()
                 .stream()
-                .map(JabatanKategoriResponse::from)
+                .map(MasterJabatanKategoriResponse::from)
                 .toList();
 
         return WebResponse.success(responses);
@@ -99,10 +99,10 @@ public class MasterJabatanController {
             summary = "Daftar status jabatan",
             description = "Mengambil daftar status jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<JabatanStatusResponse>> listStatus() {
-        List<JabatanStatusResponse> responses = masterJabatanService.listStatusJabatan()
+    public WebResponse<List<MasterJabatanStatusResponse>> listStatus() {
+        List<MasterJabatanStatusResponse> responses = masterJabatanService.listStatusJabatan()
                 .stream()
-                .map(JabatanStatusResponse::from)
+                .map(MasterJabatanStatusResponse::from)
                 .toList();
 
         return WebResponse.success(responses);

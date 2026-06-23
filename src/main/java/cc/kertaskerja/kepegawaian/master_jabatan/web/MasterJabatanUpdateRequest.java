@@ -1,19 +1,19 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
-import cc.kertaskerja.kepegawaian.master_jabatan.domain.JabatanJenjang;
-import cc.kertaskerja.kepegawaian.master_jabatan.domain.JabatanStatus;
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatan;
+import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanJenjang;
+import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanStatus;
 
 public record MasterJabatanUpdateRequest(
         String namaJabatan,
-        JabatanJenjang jenjangJabatan
+        MasterJabatanJenjang jenjangJabatan
 ) {
     public MasterJabatan toCommand() {
         return MasterJabatan.of(
                 null,
                 namaJabatan,
                 jenjangJabatan,
-                JabatanStatus.AKTIF
+                MasterJabatanStatus.AKTIF
         );
     }
 }

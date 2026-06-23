@@ -16,20 +16,20 @@ public class MasterJabatanService {
         this.masterJabatanRepository = masterJabatanRepository;
     }
 
-    public List<JabatanJenjang> listJenjangJabatan() {
-        return List.of(JabatanJenjang.values());
+    public List<MasterJabatanJenjang> listJenjangJabatan() {
+        return List.of(MasterJabatanJenjang.values());
     }
 
-    public List<JabatanKategori> listKategoriJabatan() {
-        return List.of(JabatanKategori.values());
+    public List<MasterJabatanKategori> listKategoriJabatan() {
+        return List.of(MasterJabatanKategori.values());
     }
 
-    public List<JabatanStatus> listStatusJabatan() {
-        return List.of(JabatanStatus.values());
+    public List<MasterJabatanStatus> listStatusJabatan() {
+        return List.of(MasterJabatanStatus.values());
     }
 
     public List<MasterJabatan> findAll() {
-        return masterJabatanRepository.findAllByStatusJabatanOrderByNamaJabatan(JabatanStatus.AKTIF);
+        return masterJabatanRepository.findAllByStatusJabatanOrderByNamaJabatan(MasterJabatanStatus.AKTIF);
     }
 
     public MasterJabatan findMasterJabatanById(Long id) {
@@ -49,7 +49,7 @@ public class MasterJabatanService {
                 kodeJabatan,
                 masterJabatan.namaJabatan(),
                 masterJabatan.jenjangJabatan(),
-                JabatanStatus.AKTIF
+                MasterJabatanStatus.AKTIF
         ));
     }
 
