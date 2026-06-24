@@ -62,7 +62,7 @@ public class OpdService {
         Opd existingOpd = findOpdById(id);
 
         opdRepository.findByKodeOpd(updatedOpd.kodeOpd())
-                .filter(opd -> !opd.Id().equals(id))
+                .filter(opd -> !opd.id().equals(id))
                 .ifPresent(opd -> {
                     throw new OpdAlreadyExistsException(updatedOpd.kodeOpd());
                 });

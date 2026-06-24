@@ -118,7 +118,7 @@ public class OpdController {
     })
     public WebResponse<OpdResponse> show(
             @Parameter(
-                    description = "Id OPD",
+                    description = "id OPD",
                     example = "123"
             )
             @PathVariable Long id

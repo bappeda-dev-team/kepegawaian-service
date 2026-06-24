@@ -12,7 +12,7 @@ public record OpdResponse(
 ) {
     public static OpdResponse from(Opd opd) {
         return new OpdResponse(
-                opd.Id(),
+                opd.id(),
                 opd.kodeLembaga(),
                 opd.kodeOpd(),
                 opd.namaOpd(),

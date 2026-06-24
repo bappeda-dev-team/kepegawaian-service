@@ -10,7 +10,7 @@ public record OpdDropDownResponse(
 ) {
     public static OpdDropDownResponse from(Opd opd) {
         return new OpdDropDownResponse(
-                opd.Id(),
+                opd.id(),
                 opd.kodeOpd(),
                 opd.namaOpd(),
                 opd.singkatanOpd()

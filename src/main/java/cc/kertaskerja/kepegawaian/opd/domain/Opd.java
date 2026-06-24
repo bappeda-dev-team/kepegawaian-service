@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "opd")
 public record Opd(
-        @Id Long Id,
+        @Id Long id,
 
         @NotBlank(message = "Kode lembaga harus diisi")
         @Pattern(regexp = "^[1-9]{2}\\.[0-9]{2}$")
@@ -53,7 +53,7 @@ public record Opd(
             String namaOpd,
             String singkatanOpd) {
         return new Opd(
-                Id,
+                id,
                 kodeLembaga,
                 kodeOpd,
                 namaOpd,

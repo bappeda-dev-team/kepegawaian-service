@@ -6,6 +6,6 @@ public class OpdNotFoundException extends RuntimeException {
     }
 
     public OpdNotFoundException(Long id) {
-        super("OPD dengan Id " + id + " tidak ditemukan");
+        super("OPD dengan id " + id + " tidak ditemukan");
     }
 }
