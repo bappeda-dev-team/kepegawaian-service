@@ -41,7 +41,7 @@ public class MasterJabatanController {
         return WebResponse.success(responses);
     }
 
-    @GetMapping("/{Id}")
+    @GetMapping("/{id}")
     @Operation(
             summary = "Detail jabatan",
             description = "Mengambil detail master jabatan berdasarkan ID"
@@ -136,7 +136,7 @@ public class MasterJabatanController {
         );
     }
 
-    @PutMapping("/{Id}")
+    @PutMapping("/{id}")
     @Operation(
             summary = "Perbarui jabatan",
             description = "Memperbarui data master jabatan"
@@ -166,7 +166,7 @@ public class MasterJabatanController {
         );
     }
 
-    @DeleteMapping("/{Id}")
+    @DeleteMapping("/{id}")
     @Operation(
             summary = "Hapus jabatan",
             description = "Menghapus data master jabatan"
