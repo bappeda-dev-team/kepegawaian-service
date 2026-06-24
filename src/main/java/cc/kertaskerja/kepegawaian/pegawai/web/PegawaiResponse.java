@@ -7,7 +7,6 @@ public record PegawaiResponse(
         Long id,
         String pegawaiId,
         String namaPegawai,
-        String namaJabatan,
         PegawaiStatus statusPegawai
 ) {
     public static PegawaiResponse from(Pegawai pegawai) {
@@ -15,7 +14,6 @@ public record PegawaiResponse(
                 pegawai.id(),
                 pegawai.pegawaiId(),
                 pegawai.namaPegawai(),
-                pegawai.namaJabatan(),
                 pegawai.statusPegawai()
         );
     }

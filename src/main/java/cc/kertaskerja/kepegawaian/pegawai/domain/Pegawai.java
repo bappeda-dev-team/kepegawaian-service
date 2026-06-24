@@ -58,19 +58,4 @@ public record Pegawai(
         );
     }
 
-    public String golongan() {
-        return null;
-    }
-
-    public String pangkat() {
-        return null;
-    }
-
-    public String jenisJabatan() {
-        return null;
-    }
-
-    public String namaJabatan() {
-        return null;
-    }
 }
