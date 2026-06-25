@@ -2,7 +2,7 @@ package cc.kertaskerja.kepegawaian.jabatan_pegawai.web;
 
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiAlreadyExistsException;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiNotFoundException;
-import cc.kertaskerja.kepegawaian.web.ErrorResponse;
+import cc.kertaskerja.kepegawaian.common.web.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

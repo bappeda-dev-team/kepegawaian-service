@@ -1,6 +1,10 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
-public enum MasterJabatanStatus {
+import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
+
+import java.io.Serializable;
+
+public enum MasterJabatanStatus implements LabeledEnum {
     AKTIF("Aktif"),
     NONAKTIF("Non Aktif");
 
@@ -10,7 +14,8 @@ public enum MasterJabatanStatus {
         this.label = label;
     }
 
-    public String getLabel() {
+    @Override
+    public String label() {
         return label;
     }
 }

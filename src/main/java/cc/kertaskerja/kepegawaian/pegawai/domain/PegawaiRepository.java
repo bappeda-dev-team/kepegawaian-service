@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface PegawaiRepository extends CrudRepository<Pegawai, Long> {
     Long countByStatusPegawai(PegawaiStatus statusPegawai);
-    Optional<Pegawai> findByPegawaiId(String pegawaiId);
-    boolean existsByPegawaiId(String pegawaiId);
+    Optional<Pegawai> findByNip(String nip);
+    boolean existsByNip(String nip);
 }

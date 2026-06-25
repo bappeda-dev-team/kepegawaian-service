@@ -1,7 +1,7 @@
 package cc.kertaskerja.kepegawaian.pegawai.web;
 
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiService;
-import cc.kertaskerja.kepegawaian.web.WebResponse;
+import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -69,28 +69,24 @@ public class PegawaiController {
                     responseCode = "200",
                     description = "Data Histori pegawai berhasil diambil",
                     content = @Content(
-                            array = @ArraySchema(
                                     schema = @Schema(implementation = PegawaiHistoriResponse.class)
-                            )
                     )
             ),
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "404", description = "Pegawai tidak ditemukan"),
     })
-    public WebResponse<List<PegawaiHistoriResponse>> findHistoriPegawai(
+    public WebResponse<PegawaiHistoriResponse> findHistoriPegawai(
             @Parameter(
                     description = "Pegawai id (nip)",
-                    example = "1"
+                    example = "12345"
             )
             @PathVariable Long pegawaiId,
 
             @Valid @ParameterObject PegawaiHistoriQuery query
     ) {
-        List<PegawaiHistoriResponse> response =
+        PegawaiHistoriResponse response = PegawaiHistoriResponse.from(
                 pegawaiService.findHistoriPegawai(pegawaiId, query.jenisHistori(), query.bulan(), query.tahun())
-                        .stream()
-                        .map(PegawaiHistoriResponse::from)
-                        .toList();
+        );
 
         return WebResponse.success(response);
     }

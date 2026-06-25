@@ -2,7 +2,7 @@ package cc.kertaskerja.kepegawaian.opd.web;
 
 import cc.kertaskerja.kepegawaian.opd.domain.OpdAlreadyExistsException;
 import cc.kertaskerja.kepegawaian.opd.domain.OpdNotFoundException;
-import cc.kertaskerja.kepegawaian.web.ErrorResponse;
+import cc.kertaskerja.kepegawaian.common.web.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -5,14 +5,14 @@ import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiStatus;
 
 public record PegawaiResponse(
         Long id,
-        String pegawaiId,
+        String nip,
         String namaPegawai,
         PegawaiStatus statusPegawai
 ) {
     public static PegawaiResponse from(Pegawai pegawai) {
         return new PegawaiResponse(
                 pegawai.id(),
-                pegawai.pegawaiId(),
+                pegawai.nip(),
                 pegawai.namaPegawai(),
                 pegawai.statusPegawai()
         );

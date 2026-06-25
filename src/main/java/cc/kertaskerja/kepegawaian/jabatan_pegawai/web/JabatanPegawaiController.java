@@ -1,7 +1,7 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.web;
 
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiService;
-import cc.kertaskerja.kepegawaian.web.WebResponse;
+import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -55,9 +55,45 @@ public class JabatanPegawaiController {
             JabatanPegawaiCreateRequest request
     ) {
         JabatanPegawaiResponse response = JabatanPegawaiResponse.from(
-                jabatanPegawaiService.create(request.toCommand()
-        ));
+                jabatanPegawaiService.tambahJabatan(request.toCommand()
+                ));
 
         return WebResponse.created("Jabatan pegawai berhasil ditambahkan", response);
+    }
+
+    @PostMapping("/non-aktifkan/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Non aktifkan jabatan pegawai",
+            description = "Menonaktifkan jabatan pegawai terpilih.",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Jabatan dinonaktifkan"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "request body tidak invalid"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "invalid auth"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Jabatan Pegawai tidak ditemukan"
+            )
+    })
+    public WebResponse<JabatanPegawaiResponse> nonAktifkanJabatanPegawai(
+            @PathVariable Long id,
+            @Valid @RequestBody JabatanPegawaiNonAktifkanRequest request
+    ) {
+        JabatanPegawaiResponse response = JabatanPegawaiResponse.from(
+                jabatanPegawaiService.akhiriJabatan(id, request.alasanBerakhir(), request.tmtAkhir())
+        );
+
+        return WebResponse.success("Jabatan berhasil dinonaktifkan", response);
     }
 }

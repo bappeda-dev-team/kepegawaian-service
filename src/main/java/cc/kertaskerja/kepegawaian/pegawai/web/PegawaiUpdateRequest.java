@@ -4,13 +4,13 @@ import cc.kertaskerja.kepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiStatus;
 
 public record PegawaiUpdateRequest(
-        String pegawaiId,
+        String nip,
         String namaPegawai,
         PegawaiStatus statusPegawai
 ) {
     public Pegawai toCommand() {
         return Pegawai.of(
-                pegawaiId,
+                nip,
                 namaPegawai,
                 statusPegawai
         );

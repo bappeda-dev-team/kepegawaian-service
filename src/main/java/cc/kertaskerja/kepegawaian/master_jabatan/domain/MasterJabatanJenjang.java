@@ -1,6 +1,8 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
-public enum MasterJabatanJenjang {
+import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
+
+public enum MasterJabatanJenjang implements LabeledEnum {
 
     JPT_UTAMA(MasterJabatanKategori.PIMPINAN_TINGGI, "JPT Utama"),
     JPT_MADYA(MasterJabatanKategori.PIMPINAN_TINGGI, "JPT Madya"),
@@ -41,7 +43,8 @@ public enum MasterJabatanJenjang {
         return kategori;
     }
 
-    public String getLabel() {
+    @Override
+    public String label() {
         return label;
     }
 }

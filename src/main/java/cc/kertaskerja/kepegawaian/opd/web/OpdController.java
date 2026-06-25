@@ -3,7 +3,7 @@ package cc.kertaskerja.kepegawaian.opd.web;
 import cc.kertaskerja.kepegawaian.opd.domain.Opd;
 import cc.kertaskerja.kepegawaian.opd.domain.OpdService;
 
-import cc.kertaskerja.kepegawaian.web.WebResponse;
+import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

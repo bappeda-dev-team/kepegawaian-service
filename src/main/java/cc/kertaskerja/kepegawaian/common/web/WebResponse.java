@@ -1,4 +1,4 @@
-package cc.kertaskerja.kepegawaian.web;
+package cc.kertaskerja.kepegawaian.common.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.http.HttpStatus;

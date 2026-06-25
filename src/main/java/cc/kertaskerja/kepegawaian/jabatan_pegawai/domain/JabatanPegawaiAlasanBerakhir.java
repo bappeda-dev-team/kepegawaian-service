@@ -1,6 +1,8 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.domain;
 
-public enum JabatanPegawaiAlasanBerakhir {
+import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
+
+public enum JabatanPegawaiAlasanBerakhir implements LabeledEnum {
 
     MUTASI("Mutasi"),
     PENSIUN("Pensiun"),
@@ -16,6 +18,7 @@ public enum JabatanPegawaiAlasanBerakhir {
         this.label = label;
     }
 
+    @Override
     public String label() {
         return label;
     }

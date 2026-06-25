@@ -1,6 +1,8 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
-public enum MasterJabatanKategori {
+import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
+
+public enum MasterJabatanKategori implements LabeledEnum {
     PIMPINAN_TINGGI("Jabatan Pimpinan Tinggi"),
     STRUKTURAL("Jabatan Struktural"),
     FUNGSIONAL_AHLI("Jabatan Fungsional Ahli"),
@@ -15,7 +17,8 @@ public enum MasterJabatanKategori {
         this.label = label;
     }
 
-    public String getLabel() {
+    @Override
+    public String label() {
         return label;
     }
 }

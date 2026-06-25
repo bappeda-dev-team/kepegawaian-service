@@ -1,18 +1,24 @@
 package cc.kertaskerja.kepegawaian.pegawai.web;
 
-import cc.kertaskerja.kepegawaian.pegawai.domain.Pegawai;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.web.JabatanPegawaiResponse;
+import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiDetails;
+
+import java.util.List;
 
 public record PegawaiHistoriResponse(
-        String pegawiId,
-
-        String namaPegawai
-
+        String nip,
+        String namaPegawai,
+        List<JabatanPegawaiResponse> jabatanPegawais
 ) {
 
-    public static PegawaiHistoriResponse from(Pegawai pegawai) {
+    public static PegawaiHistoriResponse from(PegawaiDetails pegawai) {
         return new PegawaiHistoriResponse(
-                pegawai.pegawaiId(),
-                pegawai.namaPegawai()
+                pegawai.nip(),
+                pegawai.namaPegawai(),
+                pegawai.jabatanPegawais()
+                        .stream()
+                        .map(JabatanPegawaiResponse::from)
+                        .toList()
         );
     }
 }

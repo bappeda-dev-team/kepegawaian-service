@@ -1,6 +1,9 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
-import cc.kertaskerja.kepegawaian.pegawai.web.PegawaiHistoriQuery;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiService;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +14,13 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PegawaiService {
     private final PegawaiRepository pegawaiRepository;
+    private final JabatanPegawaiRepository jabatanPegawaiRepository;
 
-    public PegawaiService(PegawaiRepository pegawaiRepository) {
+    public PegawaiService(PegawaiRepository pegawaiRepository,
+                          JabatanPegawaiRepository jabatanPegawaiRepository
+    ) {
         this.pegawaiRepository = pegawaiRepository;
+        this.jabatanPegawaiRepository = jabatanPegawaiRepository;
     }
 
     public List<Pegawai> findAll() {
@@ -23,7 +30,7 @@ public class PegawaiService {
     }
 
     public Pegawai findPegawaiByPegawaiId(String pegawaiId) {
-        return pegawaiRepository.findByPegawaiId(pegawaiId)
+        return pegawaiRepository.findByNip(pegawaiId)
                 .orElseThrow(() -> new PegawaiNotFoundException(pegawaiId));
     }
 
@@ -34,10 +41,10 @@ public class PegawaiService {
 
     @Transactional
     public Pegawai create(Pegawai newPegawai) {
-        String pegawaiId = newPegawai.pegawaiId();
+        String nip = newPegawai.nip();
 
-        if (pegawaiRepository.existsByPegawaiId(pegawaiId)) {
-            throw new PegawaiAlreadyExistsException(pegawaiId);
+        if (pegawaiRepository.existsByNip(nip)) {
+            throw new PegawaiAlreadyExistsException(nip);
         }
 
         return pegawaiRepository.save(newPegawai);
@@ -47,15 +54,15 @@ public class PegawaiService {
     public Pegawai update(Long id, Pegawai updatePegawai) {
         Pegawai existingPegawai = findPegawaiById(id);
 
-        pegawaiRepository.findByPegawaiId(updatePegawai.pegawaiId())
+        pegawaiRepository.findByNip(updatePegawai.nip())
                 .filter(p -> !p.id().equals(id))
                 .ifPresent(opd -> {
-                    throw new PegawaiNotFoundException(updatePegawai.pegawaiId());
+                    throw new PegawaiNotFoundException(updatePegawai.nip());
                 });
 
         return pegawaiRepository.save(
                 existingPegawai.update(
-                        updatePegawai.pegawaiId(),
+                        updatePegawai.nip(),
                         updatePegawai.namaPegawai(),
                         updatePegawai.statusPegawai()
         ));
@@ -68,8 +75,17 @@ public class PegawaiService {
         return pegawai.namaPegawai();
     }
 
-    public List<Pegawai> findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
-       // TODO: Implementasi query histori pegawai
-        return findAll();
+    public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
+        // guard pegawai
+        Pegawai pegawai = findPegawaiById(pegawaiId);
+
+        List<JabatanPegawaiView> jabatanPegawais = jabatanPegawaiRepository.findAllByPegawaiId(pegawaiId)
+                .stream().map(JabatanPegawai::toJabatanPegawaiView).toList();
+
+        return new PegawaiDetails(
+                pegawai.nip(),
+                pegawai.namaPegawai(),
+                jabatanPegawais
+        );
     }
 }

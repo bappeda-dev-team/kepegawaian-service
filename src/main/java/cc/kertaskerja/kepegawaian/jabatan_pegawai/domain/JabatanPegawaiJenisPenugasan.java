@@ -1,6 +1,8 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.domain;
 
-public enum JabatanPegawaiJenisPenugasan {
+import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
+
+public enum JabatanPegawaiJenisPenugasan implements LabeledEnum {
 
     UTAMA("Jabatan Utama"),
     PLT("Pelaksana Tugas"),
@@ -15,6 +17,7 @@ public enum JabatanPegawaiJenisPenugasan {
         this.label = label;
     }
 
+    @Override
     public String label() {
         return label;
     }

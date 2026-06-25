@@ -35,6 +35,7 @@ public record JabatanPegawai(
         Instant lastModifiedDate
 ) {
     // validasi
+    // TODO use domain JabatanPegawai exception
     public JabatanPegawai {
 
         if (tmtMulai == null) {
@@ -174,20 +175,12 @@ public record JabatanPegawai(
         );
     }
 
-    public static JabatanPegawai nonAktif(
-            Long pegawaiId,
-            Long masterJabatanId,
-            String namaJabatan,
-            Long opdId,
-            String kodeOpd,
-            String namaOpd,
-            JabatanPegawaiJenisPenugasan jenisPenugasan,
+    public JabatanPegawai nonAktif(
             JabatanPegawaiAlasanBerakhir alasanBerakhir,
-            LocalDate tmtMulai,
             LocalDate tmtAkhir
     ) {
         return new JabatanPegawai(
-                null,
+                id,
                 pegawaiId,
 
                 masterJabatanId,
@@ -203,7 +196,7 @@ public record JabatanPegawai(
                 tmtMulai,
                 tmtAkhir,
 
-                null,
+                createdDate,
                 null
         );
     }
@@ -264,14 +257,18 @@ public record JabatanPegawai(
         );
     }
 
-    public JabatanPegawaiView toJabatanPegawaiView(Pegawai pegawai) {
+    public JabatanPegawaiView toJabatanPegawaiView() {
         return new JabatanPegawaiView(
                 id,
-                pegawai.pegawaiId(),
-                pegawai.namaPegawai(),
-                namaJabatan(),
+                pegawaiId,
+                namaJabatan,
                 kodeOpd,
-                namaOpd
+                namaOpd,
+                jenisPenugasan,
+                alasanBerakhir,
+                tmtMulai,
+                tmtAkhir,
+                createdDate
         );
     }
 }

@@ -13,8 +13,7 @@ public record Pegawai(
         @Id
         Long id,
 
-        @Column("pegawai_id")
-        String pegawaiId,
+        String nip,
 
         @Column("nama_pegawai")
         String namaPegawai,
@@ -29,13 +28,13 @@ public record Pegawai(
         Instant lastModifiedDate
 ) {
     public static Pegawai of(
-            String pegawaiId,
+            String nip,
             String namaPegawai,
             PegawaiStatus statusPegawai
     ) {
         return new Pegawai(
                 null,
-                pegawaiId,
+                nip,
                 namaPegawai,
                 statusPegawai,
                 null,
@@ -44,13 +43,13 @@ public record Pegawai(
     }
 
     public Pegawai update(
-            String pegawaiId,
+            String nip,
             String namaPegawai,
             PegawaiStatus statusPegawai
     ) {
         return new Pegawai(
                 id,
-                pegawaiId,
+                nip,
                 namaPegawai,
                 statusPegawai,
                 createdDate,

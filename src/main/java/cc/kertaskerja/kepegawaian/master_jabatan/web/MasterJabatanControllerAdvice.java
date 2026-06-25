@@ -1,7 +1,7 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanAlreadyExistsException;
-import cc.kertaskerja.kepegawaian.web.ErrorResponse;
+import cc.kertaskerja.kepegawaian.common.web.ErrorResponse;
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

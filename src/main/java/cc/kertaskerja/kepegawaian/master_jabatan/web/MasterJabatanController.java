@@ -1,7 +1,8 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanService;
-import cc.kertaskerja.kepegawaian.web.WebResponse;
+import cc.kertaskerja.kepegawaian.common.web.EnumLabelResponse;
+import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,10 +72,10 @@ public class MasterJabatanController {
             summary = "Daftar jenjang jabatan",
             description = "Mengambil daftar jenjang jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<MasterJabatanJenjangResponse>> listJenjang() {
-        List<MasterJabatanJenjangResponse> responses = masterJabatanService.listJenjangJabatan()
+    public WebResponse<List<EnumLabelResponse>> listJenjang() {
+        List<EnumLabelResponse> responses = masterJabatanService.listJenjangJabatan()
                 .stream()
-                .map(MasterJabatanJenjangResponse::from)
+                .map(EnumLabelResponse::of)
                 .toList();
 
         return WebResponse.success(responses);
@@ -85,10 +86,10 @@ public class MasterJabatanController {
             summary = "Daftar kategori jabatan",
             description = "Mengambil daftar kategori jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<MasterJabatanKategoriResponse>> listKategori() {
-        List<MasterJabatanKategoriResponse> responses = masterJabatanService.listKategoriJabatan()
+    public WebResponse<List<EnumLabelResponse>> listKategori() {
+        List<EnumLabelResponse> responses = masterJabatanService.listKategoriJabatan()
                 .stream()
-                .map(MasterJabatanKategoriResponse::from)
+                .map(EnumLabelResponse::of)
                 .toList();
 
         return WebResponse.success(responses);
@@ -99,10 +100,10 @@ public class MasterJabatanController {
             summary = "Daftar status jabatan",
             description = "Mengambil daftar status jabatan untuk kebutuhan pilihan"
     )
-    public WebResponse<List<MasterJabatanStatusResponse>> listStatus() {
-        List<MasterJabatanStatusResponse> responses = masterJabatanService.listStatusJabatan()
+    public WebResponse<List<EnumLabelResponse>> listStatus() {
+        List<EnumLabelResponse> responses = masterJabatanService.listStatusJabatan()
                 .stream()
-                .map(MasterJabatanStatusResponse::from)
+                .map(EnumLabelResponse::of)
                 .toList();
 
         return WebResponse.success(responses);

@@ -1,12 +1,22 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.domain;
 
+import java.time.Instant;
+import java.time.LocalDate;
+
 public record JabatanPegawaiView(
         Long jabatanPegawaiId,
-        String pegawaiId,
-        String namaPegawai,
+        Long pegawaiId,
         String namaJabatan,
         String kodeOpd,
-        String namaOpd
+        String namaOpd,
+
+        JabatanPegawaiJenisPenugasan jenisPenugasan,
+        JabatanPegawaiAlasanBerakhir alasanBerakhir,
+
+        LocalDate tmtMulai,
+        LocalDate tmtAkhir,
+
+        Instant createdDate
 ) {
 
 }

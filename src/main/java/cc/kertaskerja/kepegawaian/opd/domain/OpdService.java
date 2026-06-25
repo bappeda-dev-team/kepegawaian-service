@@ -26,12 +26,12 @@ public class OpdService {
                 );
     }
 
-    public Opd findOpdByKodeOpd(String kodeOpd) {
+    public void findOpdByKodeOpd(String kodeOpd) {
         if (kodeOpd == null || kodeOpd.isBlank()) {
             throw new IllegalArgumentException("Kode OPD tidak boleh kosong");
         }
 
-        return opdRepository.findByKodeOpd(kodeOpd)
+        opdRepository.findByKodeOpd(kodeOpd)
                 .orElseThrow(() -> new OpdNotFoundException(kodeOpd));
     }
 
