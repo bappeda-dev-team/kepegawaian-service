@@ -2,8 +2,6 @@ package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
 import cc.kertaskerja.kepegawaian.common.domain.LabeledEnum;
 
-import java.io.Serializable;
-
 public enum MasterJabatanStatus implements LabeledEnum {
     AKTIF("Aktif"),
     NONAKTIF("Non Aktif");

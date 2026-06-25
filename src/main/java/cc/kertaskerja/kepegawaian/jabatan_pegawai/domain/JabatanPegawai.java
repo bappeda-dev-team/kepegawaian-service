@@ -1,6 +1,5 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.domain;
 
-import cc.kertaskerja.kepegawaian.pegawai.domain.Pegawai;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,27 +34,26 @@ public record JabatanPegawai(
         Instant lastModifiedDate
 ) {
     // validasi
-    // TODO use domain JabatanPegawai exception
     public JabatanPegawai {
 
         if (tmtMulai == null) {
-            throw new IllegalArgumentException("TMT mulai wajib ada");
+            throw new JabatanPegawaiValidationException("TMT mulai wajib ada");
         }
 
         if (tmtAkhir != null && tmtAkhir.isBefore(tmtMulai)) {
-            throw new IllegalArgumentException(
+            throw new JabatanPegawaiValidationException(
                     "TMT akhir tidak boleh sebelum TMT mulai"
             );
         }
 
         if (tmtAkhir == null && alasanBerakhir != null) {
-            throw new IllegalArgumentException(
+            throw new JabatanPegawaiValidationException(
                     "Jabatan aktif tidak boleh memiliki alasan berakhir"
             );
         }
 
         if (tmtAkhir != null && alasanBerakhir == null) {
-            throw new IllegalArgumentException(
+            throw new JabatanPegawaiValidationException(
                     "Jabatan non aktif harus memiliki alasan berakhir"
             );
         }

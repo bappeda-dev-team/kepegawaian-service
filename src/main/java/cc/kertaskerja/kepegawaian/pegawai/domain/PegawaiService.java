@@ -2,7 +2,6 @@ package cc.kertaskerja.kepegawaian.pegawai.domain;
 
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
-import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiService;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
