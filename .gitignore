@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/main/java/cc/kertaskerja/.DS_Store
+/src/main/java/cc/kertaskerja/kepegawaian/.DS_Store
+/src/main/resources/application-local.yml

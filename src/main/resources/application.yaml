@@ -44,9 +44,4 @@ management:
         enabled: true
 
 kertaskerja:
-  kode-lembaga: 64.11
-
-logging:
-  level:
-    org.springframework.web: DEBUG
-    org.springframework.validation: TRACE
+  kode-lembaga: XX.XX
