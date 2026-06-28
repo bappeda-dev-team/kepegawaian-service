@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: bappeda-dev-team/kepegawaian-service
+  IMAGE_NAME: bappeda-dev-team/kepegawaian-service-new
   VERSION: ${{ github.sha }}
   JAVA_VERSION: 21
 
