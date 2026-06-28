@@ -63,6 +63,10 @@ public record JabatanPegawai(
         return tmtAkhir == null;
     }
 
+    public boolean isAktifAndUtama() {
+        return tmtAkhir == null && jenisPenugasan.isUtama();
+    }
+
     public boolean isNonAktif() {
         return !isAktif();
     }

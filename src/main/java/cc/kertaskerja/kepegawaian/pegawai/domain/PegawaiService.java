@@ -23,9 +23,10 @@ public class PegawaiService {
     }
 
     public List<Pegawai> findAll() {
+        // TODO: implement pagination
         return Streamable.of(
                 pegawaiRepository.findAll()
-                ).toList();
+                ).stream().limit(20).toList();
     }
 
     public Pegawai findPegawaiByPegawaiId(String pegawaiId) {

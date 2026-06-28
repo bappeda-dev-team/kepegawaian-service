@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.jabatan_pegawai.web;
 
+import cc.kertaskerja.kepegawaian.common.web.EnumLabelResponse;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiService;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/jabatan-pegawai")
@@ -95,5 +98,51 @@ public class JabatanPegawaiController {
         );
 
         return WebResponse.success("Jabatan berhasil dinonaktifkan", response);
+    }
+
+    @PostMapping("/pindah-pegawai")
+    @ResponseStatus(HttpStatus.OK)
+    public WebResponse<JabatanPegawaiResponse> pindahPegawai(
+            @Valid
+            @RequestBody
+            JabatanPegawaiCreateRequest request
+    ) {
+
+        JabatanPegawaiResponse response = JabatanPegawaiResponse.from(jabatanPegawaiService.pindahPegawai(
+                request.pegawaiId(),
+                request.masterJabatanId(),
+                request.opdId(),
+                request.tmtMulai()
+        ));
+
+        return WebResponse.success("Mutasi pegawai berhasil", response);
+    }
+
+    @GetMapping("/options/alasan-berakhir")
+    @Operation(
+            summary = "Daftar Alasan Berakhir Jabatan",
+            description = "Mengambil daftar alasan jabatan berakhir untuk kebutuhan pilihan"
+    )
+    public WebResponse<List<EnumLabelResponse>> optionAlasanBerakhir() {
+        List<EnumLabelResponse> responses = jabatanPegawaiService.listAlasanBerakhir()
+                .stream()
+                .map(EnumLabelResponse::of)
+                .toList();
+
+        return WebResponse.success(responses);
+    }
+
+    @GetMapping("/options/jenis-penugasan")
+    @Operation(
+            summary = "Daftar Jenis Penugasan Jabatan",
+            description = "Mengambil daftar jenis penugasan jabatan untuk kebutuhan pilihan"
+    )
+    public WebResponse<List<EnumLabelResponse>> optionJenisPenugasan() {
+        List<EnumLabelResponse> responses = jabatanPegawaiService.listJenisPenugasan()
+                .stream()
+                .map(EnumLabelResponse::of)
+                .toList();
+
+        return WebResponse.success(responses);
     }
 }

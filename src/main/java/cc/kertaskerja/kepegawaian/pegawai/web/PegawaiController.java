@@ -58,6 +58,11 @@ public class PegawaiController {
         return WebResponse.success(responses);
     }
 
+    @GetMapping("/{id}")
+    public WebResponse<PegawaiResponse> findById(@PathVariable Long id) {
+        return WebResponse.success(PegawaiResponse.from(pegawaiService.findPegawaiById(id)));
+    }
+
     @GetMapping("/histori/{pegawaiId}")
     @Operation(
             summary = "Histori lengkap pegawai",

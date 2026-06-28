@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -43,11 +45,12 @@ public class JabatanPegawaiService {
         MasterJabatan masterJabatan = findMasterJabatan(command.masterJabatanId());
 
         // guard jabatan utama pegawai lebih dari satu
-        if (command.jenisPenugasan().isUtama()) {
-            jabatanPegawaiRepository.findActivePrimaryByPegawaiId(command.pegawaiId())
-                    .ifPresent(j -> {
-                        throw new JabatanPegawaiAlreadyExistsException(j);
-                    });
+        // find existing jabatan
+        List<JabatanPegawai> jabatanAktif = jabatanPegawaiRepository.findAllByPegawaiId(command.pegawaiId())
+                    .stream().filter(JabatanPegawai::isAktifAndUtama).toList();
+
+        if (!jabatanAktif.isEmpty()) {
+            throw new JabatanPegawaiAlreadyExistsException(jabatanAktif.getFirst());
         }
 
         JabatanPegawai jabatanPegawaiBaru = JabatanPegawai.create(
@@ -88,25 +91,25 @@ public class JabatanPegawaiService {
     }
 
     @Transactional
-    public JabatanPegawaiView mutasiPegawai(
+    public JabatanPegawaiView pindahPegawai(
             Long pegawaiId,
             Long newMasterJabatanId,
             Long newOpdId,
             LocalDate tmtMutasi
     ) {
         // guard non aktifkan jabatan pegawai lama
-        JabatanPegawai jabatanAktif = findCurrentJabatanPegawai(pegawaiId)
-                .orElseThrow(JabatanPegawaiNotFoundException::new);
+        List<JabatanPegawai> jabatanAktif = jabatanPegawaiRepository.findAllByPegawaiId(pegawaiId)
+                .stream().filter(JabatanPegawai::isAktifAndUtama).toList();
+
         // guard mutasi ke jabatan yang sama
-        if (jabatanAktif.masterJabatanId().equals(newMasterJabatanId)
-                && jabatanAktif.opdId().equals(newOpdId)
-        ) {
-            throw new JabatanPegawaiAlreadyExistsException(jabatanAktif);
+        if (jabatanAktif.stream().anyMatch(j -> Objects.equals(j.masterJabatanId(), newMasterJabatanId) &&
+                Objects.equals(j.opdId(), newOpdId))) {
+            throw new JabatanPegawaiAlreadyExistsException(jabatanAktif.getFirst());
         }
 
         // set jabatan sekarang to mutasi
         akhiriJabatan(
-                jabatanAktif.id(),
+                jabatanAktif.getFirst().id(),
                 JabatanPegawaiAlasanBerakhir.MUTASI,
                 tmtMutasi
         );
@@ -168,4 +171,11 @@ public class JabatanPegawaiService {
                 .orElseThrow(() -> new PegawaiNotFoundException(pegawaiId));
     }
 
+    public List<JabatanPegawaiAlasanBerakhir> listAlasanBerakhir() {
+        return List.of(JabatanPegawaiAlasanBerakhir.values());
+    }
+
+    public List<JabatanPegawaiJenisPenugasan> listJenisPenugasan() {
+        return List.of(JabatanPegawaiJenisPenugasan.values());
+    }
 }
