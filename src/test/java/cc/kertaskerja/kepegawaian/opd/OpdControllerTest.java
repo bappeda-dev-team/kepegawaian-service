@@ -42,7 +42,7 @@ class OpdControllerTest {
 
         mockMvc.perform(get("/opd/all"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$data[0].kodeOpd")
+                .andExpect(jsonPath("$.data[0].kode_opd")
                         .value("5.01.5.05.0.00.01.0000"));
     }
 }
