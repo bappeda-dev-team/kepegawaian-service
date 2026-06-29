@@ -83,6 +83,7 @@ public class PegawaiService {
                 .stream().map(JabatanPegawai::toJabatanPegawaiView).toList();
 
         return new PegawaiDetails(
+                pegawai.id(),
                 pegawai.nip(),
                 pegawai.namaPegawai(),
                 jabatanPegawais

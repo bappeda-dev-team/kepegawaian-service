@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.domain;
 
+import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -30,7 +31,7 @@ public record MasterJabatan(
 
         @LastModifiedDate
         Instant lastModifiedDate
-) {
+) implements Optionable {
 
         public static MasterJabatan of(
             String kodeJabatan,
@@ -61,5 +62,15 @@ public record MasterJabatan(
                         createdDate,
                         null
                 );
+        }
+
+        @Override
+        public String optionLabel() {
+                return namaJabatan;
+        }
+
+        @Override
+        public String optionValue() {
+                return id.toString();
         }
 }

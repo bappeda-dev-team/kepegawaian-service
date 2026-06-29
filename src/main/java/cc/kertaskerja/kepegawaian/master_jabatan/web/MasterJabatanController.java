@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
+import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanService;
 import cc.kertaskerja.kepegawaian.common.web.EnumLabelResponse;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -189,6 +191,26 @@ public class MasterJabatanController {
 
         return WebResponse.deleted(
                 "Jabatan " + namaJabatan + " berhasil dihapus"
+        );
+    }
+
+    @GetMapping("/options")
+    @Operation(
+            summary = "Daftar Master Jabatan untuk dropdown",
+            description = "Simplifikasi Data Master Jabatan untuk dropdown",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    public WebResponse<List<OptionResponse>> dropdownAll() {
+        List<OptionResponse> responses = masterJabatanService.findAll()
+                .stream()
+                .map(OptionResponse::of)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "Dropdown master jabatan",
+                responses
         );
     }
 }

@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.opd.web;
 
+import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
 import cc.kertaskerja.kepegawaian.opd.domain.Opd;
 import cc.kertaskerja.kepegawaian.opd.domain.OpdService;
 
@@ -67,7 +68,7 @@ public class OpdController {
         );
     }
 
-    @GetMapping("/dropdown")
+    @GetMapping("/options")
     @Operation(
             summary = "Daftar OPD untuk dropdown",
             description = "Simplifikasi Data OPD untuk dropdown",
@@ -79,16 +80,16 @@ public class OpdController {
                     description = "Daftar OPD berhasil diambil",
                     content = @Content(
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = OpdDropDownResponse.class)
+                                    schema = @Schema(implementation = OptionResponse.class)
                             )
                     )
             ),
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
     })
-    public WebResponse<List<OpdDropDownResponse>> dropdownAll() {
-        List<OpdDropDownResponse> responses = opdService.findAllOpdAktifInLembaga()
+    public WebResponse<List<OptionResponse>> dropdownAll() {
+        List<OptionResponse> responses = opdService.findAllOpdAktifInLembaga()
                 .stream()
-                .map(OpdDropDownResponse::from)
+                .map(OptionResponse::of)
                 .toList();
 
         return new WebResponse<>(

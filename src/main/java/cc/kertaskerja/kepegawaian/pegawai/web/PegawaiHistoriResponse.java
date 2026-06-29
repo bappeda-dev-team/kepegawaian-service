@@ -6,6 +6,7 @@ import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiDetails;
 import java.util.List;
 
 public record PegawaiHistoriResponse(
+        Long id,
         String nip,
         String namaPegawai,
         List<JabatanPegawaiResponse> jabatanPegawais
@@ -13,6 +14,7 @@ public record PegawaiHistoriResponse(
 
     public static PegawaiHistoriResponse from(PegawaiDetails pegawai) {
         return new PegawaiHistoriResponse(
+                pegawai.id(),
                 pegawai.nip(),
                 pegawai.namaPegawai(),
                 pegawai.jabatanPegawais()

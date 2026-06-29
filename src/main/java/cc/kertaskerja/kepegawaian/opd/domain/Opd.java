@@ -2,6 +2,7 @@ package cc.kertaskerja.kepegawaian.opd.domain;
 
 import java.time.Instant;
 
+import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.data.annotation.CreatedDate;
@@ -30,7 +31,7 @@ public record Opd(
 
         @LastModifiedDate Instant lastModifiedDate
 
-) {
+) implements Optionable {
 
     public static Opd of(
             String kodeLembaga,
@@ -61,5 +62,16 @@ public record Opd(
                 statusOpd,
                 createdDate,
                 null);
+    }
+
+
+    @Override
+    public String optionLabel() {
+        return namaOpd;
+    }
+
+    @Override
+    public String optionValue() {
+        return id.toString();
     }
 }
