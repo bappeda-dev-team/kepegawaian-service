@@ -44,4 +44,20 @@ management:
         enabled: true
 
 kertaskerja:
-  kode-lembaga: XX.XX
+  kode-lembaga: x.xx
+  status: KEPEGAWAIAN-UP
+  allowed-hosts:
+    - http://localhost:3000
+
+identity:
+  provider: keycloak
+  keycloak:
+    server-url: http://keycloak.local
+    realm: TestRealm
+
+    admin:
+      client-id: kepegawaian-service
+      client-secret: KEPEGAWAIAN-SERVICE-SECRET
+  migration:
+    default-password: "-"
+    temporary-password: true
