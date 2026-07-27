@@ -21,6 +21,9 @@ public record Pegawai(
         @Column("status_pegawai")
         PegawaiStatus statusPegawai,
 
+        @Column("keycloak_user_id")
+        String keycloakUserId,
+
         @CreatedDate
         Instant createdDate,
 
@@ -38,6 +41,7 @@ public record Pegawai(
                 namaPegawai,
                 statusPegawai,
                 null,
+                null,
                 null
         );
     }
@@ -52,9 +56,26 @@ public record Pegawai(
                 nip,
                 namaPegawai,
                 statusPegawai,
+                keycloakUserId,
                 createdDate,
                 null
         );
+    }
+
+    public Pegawai withKeycloakUserId(String keycloakUserId) {
+        return new Pegawai(
+                id,
+                nip,
+                namaPegawai,
+                statusPegawai,
+                keycloakUserId,
+                createdDate,
+                null
+        );
+    }
+
+    public String kodeOpd() {
+        return "AA";
     }
 
 }

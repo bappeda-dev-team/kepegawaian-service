@@ -5,7 +5,8 @@ import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiStatus;
 
 public record PegawaiCreateRequest(
         String nip,
-        String namaPegawai
+        String namaPegawai,
+        String initialPassword
 ) {
 
     public Pegawai toCommand() {

@@ -43,6 +43,15 @@ public record WebResponse<T>(
         );
     }
 
+    public static <T> WebResponse<T> ok(String message, T data) {
+        return new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                message,
+                data
+        );
+    }
+
     public static WebResponse<Void> badRequest(String message) {
         return new WebResponse<>(
                 HttpStatus.OK.value(),

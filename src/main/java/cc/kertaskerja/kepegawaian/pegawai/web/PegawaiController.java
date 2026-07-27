@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.pegawai.web;
 
+import cc.kertaskerja.kepegawaian.pegawai.domain.MigrationSummary;
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,7 +113,7 @@ public class PegawaiController {
             @Valid @RequestBody PegawaiCreateRequest request
     ) {
         PegawaiResponse response = PegawaiResponse.from(pegawaiService.create(
-                request.toCommand()
+                request.toCommand(), request.initialPassword()
         ));
 
         return WebResponse.created(
@@ -166,5 +167,23 @@ public class PegawaiController {
         return WebResponse.deleted(
                 "Pegawai " + namaPegawai + " berhasil dihapus"
         );
+    }
+
+    @PostMapping("/migrate")
+    @Operation(
+            summary = "Migrasi data pegawai",
+            description = "Migrasi existing pegawai ke identity service",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Migrasi Pegawai berhasil"),
+            @ApiResponse(responseCode = "400", description = "Data tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
+            @ApiResponse(responseCode = "409", description = "Pegawai sudah ada")
+    })
+    public WebResponse<MigrationSummary> migrate() {
+        MigrationSummary summary = pegawaiService.migratePegawaiToKeycloak();
+
+        return WebResponse.ok("Migrasi Pegawai berhasil", summary);
     }
 }
