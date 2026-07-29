@@ -60,8 +60,34 @@ public class PegawaiController {
     }
 
     @GetMapping("/{id}")
-    public WebResponse<PegawaiResponse> findById(@PathVariable Long id) {
-        return WebResponse.success(PegawaiResponse.from(pegawaiService.findPegawaiById(id)));
+    @Operation(
+            summary = "Find pegawai by ID",
+            description = "Mengembalikan data pegawai berdasarkan ID.",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Pegawai berhasil ditemukan",
+                    content = @Content(
+                            schema = @Schema(implementation = PegawaiResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "ID pegawai tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
+            @ApiResponse(responseCode = "404", description = "Pegawai tidak ditemukan")
+    })
+    public WebResponse<PegawaiResponse> findById(
+            @Parameter(
+                    description = "ID unik pegawai",
+                    example = "123",
+                    required = true
+            )
+            @PathVariable Long id
+    ) {
+        return WebResponse.success(
+                PegawaiResponse.from(pegawaiService.findPegawaiById(id))
+        );
     }
 
     @GetMapping("/histori/{pegawaiId}")
@@ -186,4 +212,36 @@ public class PegawaiController {
 
         return WebResponse.ok("Migrasi Pegawai berhasil", summary);
     }
+
+    @GetMapping("/findByNip")
+    @Operation(
+            summary = "Find pegawai by NIP",
+            description = "Mengembalikan data pegawai berdasarkan NIP.",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Pegawai berhasil ditemukan",
+                    content = @Content(
+                            schema = @Schema(implementation = PegawaiResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Parameter NIP tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
+            @ApiResponse(responseCode = "404", description = "Pegawai tidak ditemukan")
+    })
+    public WebResponse<PegawaiResponse> findByNip(
+            @Parameter(
+                    description = "Nomor Induk Pegawai (NIP)",
+                    example = "198701012010011001",
+                    required = true
+            )
+            @RequestParam String nip
+    ) {
+        return WebResponse.success(
+                PegawaiResponse.from(pegawaiService.findPegawaiByPegawaiId(nip))
+        );
+    }
+
 }
