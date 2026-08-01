@@ -174,7 +174,7 @@ public class PegawaiController {
         );
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     @Operation(
             summary = "Hapus data pegawai",
             description = "hapus data pegawai by id",
