@@ -5,8 +5,12 @@ spring:
 kertaskerja:
   kode-lembaga: x.xx
   status: KEPEGAWAIAN-UP
-  allowed-hosts:
-    - http://localhost:3000
+  security:
+    mode: gateway
+  cors:
+    enabled: false
+    allowed-hosts:
+      - http://localhost:3000
 
 identity:
   provider: keycloak

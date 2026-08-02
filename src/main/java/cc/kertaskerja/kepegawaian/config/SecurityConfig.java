@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -18,7 +19,9 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @ConditionalOnProperty(prefix = "kertaskerja.security", name = "mode", havingValue = "none")
+    SecurityFilterChain noSecurity(HttpSecurity http) throws Exception {
+
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -28,11 +31,39 @@ public class SecurityConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "kertaskerja.security", name = "mode", havingValue = "gateway")
+    SecurityFilterChain gatewaySecurity(HttpSecurity http) throws Exception {
+
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+
+        // tambahkan filter internal jika nanti diperlukan
+
+        return http.build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "kertaskerja.security", name = "mode", havingValue = "resource-server")
+    SecurityFilterChain resourceServer(HttpSecurity http) throws Exception {
+
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
+
+        return http.build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "kertaskerja.cors", name = "enabled", havingValue = "true")
     CorsConfigurationSource corsConfigurationSource(
             KertaskerjaProperties kertaskerjaProperties) {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(kertaskerjaProperties.allowedHosts());
+        config.setAllowedOrigins(kertaskerjaProperties.cors().allowedHosts());
         config.setAllowedMethods(List.of(
                 "GET",
                 "POST",
@@ -49,4 +80,5 @@ public class SecurityConfig {
 
         return source;
     }
+
 }

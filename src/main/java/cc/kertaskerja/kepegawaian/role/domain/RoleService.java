@@ -2,6 +2,10 @@ package cc.kertaskerja.kepegawaian.role.domain;
 
 import java.util.List;
 
+import org.springframework.data.util.Streamable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @Transactional(readOnly = true)
 public class RoleService {
@@ -13,17 +17,18 @@ public class RoleService {
     }
 
     public List<Role> findAll() {
-        return roleRepository.findAll().toList();
+        return Streamable.of(roleRepository.findAll()).toList();
     }
 
     public Role findRoleById(Long id) {
-        return roleRepository.findById(id);
+        return roleRepository.findById(id)
+            .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
     @Transactional
     public Role create(Role newRole) {
         String kodeRole = kodeRoleMaker(newRole.namaRole());
-        if (newRole.existsByKodeRole(kodeRole)) {
+        if (roleRepository.existsByKodeRole(kodeRole)) {
             throw new RoleAlreadyExistsException(kodeRole);
         }
 
@@ -49,7 +54,7 @@ public class RoleService {
 
     @Transactional
     public String delete(Long id) {
-        Role role = findRolebyId(id);
+        Role role = findRoleById(id);
         roleRepository.deleteById(id);
         return role.namaRole();
     }

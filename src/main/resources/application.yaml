@@ -46,8 +46,12 @@ management:
 kertaskerja:
   kode-lembaga: x.xx
   status: KEPEGAWAIAN-UP
-  allowed-hosts:
-    - http://localhost:3000
+  security:
+    mode: resource_server
+  cors:
+    enabled: true
+    allowed-hosts:
+      - http://localhost:3000
 
 identity:
   provider: keycloak
