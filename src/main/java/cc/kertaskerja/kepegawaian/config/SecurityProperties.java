@@ -10,7 +10,6 @@ public record SecurityProperties(
 
     public enum Mode {
         NONE,
-        GATEWAY,
         RESOURCE_SERVER
     }
 }

@@ -31,20 +31,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "kertaskerja.security", name = "mode", havingValue = "gateway")
-    SecurityFilterChain gatewaySecurity(HttpSecurity http) throws Exception {
-
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-
-        // tambahkan filter internal jika nanti diperlukan
-
-        return http.build();
-    }
-
-    @Bean
     @ConditionalOnProperty(prefix = "kertaskerja.security", name = "mode", havingValue = "resource-server")
     SecurityFilterChain resourceServer(HttpSecurity http) throws Exception {
 
