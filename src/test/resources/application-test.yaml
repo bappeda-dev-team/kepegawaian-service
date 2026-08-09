@@ -6,7 +6,7 @@ kertaskerja:
   kode-lembaga: x.xx
   status: KEPEGAWAIAN-UP
   security:
-    mode: gateway
+    mode: none
   cors:
     enabled: false
     allowed-hosts:
