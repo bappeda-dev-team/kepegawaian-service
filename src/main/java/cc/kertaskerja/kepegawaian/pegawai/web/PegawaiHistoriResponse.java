@@ -2,6 +2,7 @@ package cc.kertaskerja.kepegawaian.pegawai.web;
 
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.web.JabatanPegawaiResponse;
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiDetails;
+import cc.kertaskerja.kepegawaian.role_pegawai.web.AssignRolePegawaiResponse;
 
 import java.util.List;
 
@@ -9,7 +10,8 @@ public record PegawaiHistoriResponse(
         Long id,
         String nip,
         String namaPegawai,
-        List<JabatanPegawaiResponse> jabatanPegawais
+        List<JabatanPegawaiResponse> jabatanPegawais,
+        List<AssignRolePegawaiResponse> rolePegawais
 ) {
 
     public static PegawaiHistoriResponse from(PegawaiDetails pegawai) {
@@ -20,6 +22,10 @@ public record PegawaiHistoriResponse(
                 pegawai.jabatanPegawais()
                         .stream()
                         .map(JabatanPegawaiResponse::from)
+                        .toList(),
+                pegawai.rolePegawais()
+                        .stream()
+                        .map(AssignRolePegawaiResponse::from)
                         .toList()
         );
     }

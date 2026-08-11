@@ -5,6 +5,8 @@ import cc.kertaskerja.kepegawaian.identity.domain.IdentityService;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
+import cc.kertaskerja.kepegawaian.role_pegawai.domain.AssignRoleResult;
+import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Streamable;
@@ -22,35 +24,57 @@ public class PegawaiService {
     private final IdentityMapper identityMapper;
     private final IdentityProperties identityProperties;
     private final Logger log = LoggerFactory.getLogger(PegawaiService.class);
+    private final RolePegawaiService rolePegawaiService;
 
     public PegawaiService(PegawaiRepository pegawaiRepository,
                           JabatanPegawaiRepository jabatanPegawaiRepository,
                           IdentityService identityService,
                           IdentityMapper identityMapper,
-                          IdentityProperties identityProperties
+                          IdentityProperties identityProperties,
+                          RolePegawaiService rolePegawaiService
     ) {
         this.pegawaiRepository = pegawaiRepository;
         this.jabatanPegawaiRepository = jabatanPegawaiRepository;
         this.identityService = identityService;
         this.identityMapper = identityMapper;
         this.identityProperties = identityProperties;
+        this.rolePegawaiService = rolePegawaiService;
     }
 
     public List<Pegawai> findAll() {
         // TODO: implement pagination
         return Streamable.of(
                 pegawaiRepository.findAll()
-                ).toList();
+        ).toList();
     }
 
-    public Pegawai findPegawaiByPegawaiId(String pegawaiId) {
-        return pegawaiRepository.findByNip(pegawaiId)
-                .orElseThrow(() -> new PegawaiNotFoundException(pegawaiId));
+    public Pegawai findPegawaiByPegawaiId(String nip) {
+        return pegawaiRepository.findByNip(nip)
+                .orElseThrow(() -> new PegawaiNotFoundException(nip));
     }
+
 
     public Pegawai findPegawaiById(Long id) {
         return pegawaiRepository.findById(id)
                 .orElseThrow(()-> new PegawaiNotFoundException(id));
+    }
+
+    public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
+        // guard pegawai
+        Pegawai pegawai = findPegawaiById(pegawaiId);
+
+        List<JabatanPegawaiView> jabatanPegawais = jabatanPegawaiRepository.findAllByPegawaiId(pegawaiId)
+                .stream().map(JabatanPegawai::toJabatanPegawaiView).toList();
+
+        List<AssignRoleResult> rolePegawais = rolePegawaiService.findAllByPegawaiId(pegawaiId);
+
+        return new PegawaiDetails(
+                pegawai.id(),
+                pegawai.nip(),
+                pegawai.namaPegawai(),
+                jabatanPegawais,
+                rolePegawais
+        );
     }
 
     @Transactional
@@ -103,21 +127,6 @@ public class PegawaiService {
         Pegawai pegawai = findPegawaiById(id);
         pegawaiRepository.deleteById(id);
         return pegawai.namaPegawai();
-    }
-
-    public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
-        // guard pegawai
-        Pegawai pegawai = findPegawaiById(pegawaiId);
-
-        List<JabatanPegawaiView> jabatanPegawais = jabatanPegawaiRepository.findAllByPegawaiId(pegawaiId)
-                .stream().map(JabatanPegawai::toJabatanPegawaiView).toList();
-
-        return new PegawaiDetails(
-                pegawai.id(),
-                pegawai.nip(),
-                pegawai.namaPegawai(),
-                jabatanPegawais
-        );
     }
 
     @Transactional
