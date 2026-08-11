@@ -224,14 +224,14 @@ public class PegawaiController {
                     responseCode = "200",
                     description = "Pegawai berhasil ditemukan",
                     content = @Content(
-                            schema = @Schema(implementation = PegawaiResponse.class)
+                            schema = @Schema(implementation = PegawaiDetailResponse.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "Parameter NIP tidak valid"),
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "404", description = "Pegawai tidak ditemukan")
     })
-    public WebResponse<PegawaiResponse> findByNip(
+    public WebResponse<PegawaiDetailResponse> findByNip(
             @Parameter(
                     description = "Nomor Induk Pegawai (NIP)",
                     example = "198701012010011001",
@@ -240,7 +240,7 @@ public class PegawaiController {
             @RequestParam String nip
     ) {
         return WebResponse.success(
-                PegawaiResponse.from(pegawaiService.findPegawaiByPegawaiId(nip))
+                PegawaiDetailResponse.from(pegawaiService.findPegawaiByPegawaiId(nip))
         );
     }
 

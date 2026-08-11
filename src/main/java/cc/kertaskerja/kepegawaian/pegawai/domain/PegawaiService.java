@@ -3,9 +3,11 @@ package cc.kertaskerja.kepegawaian.pegawai.domain;
 import cc.kertaskerja.kepegawaian.config.IdentityProperties;
 import cc.kertaskerja.kepegawaian.identity.domain.IdentityService;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
+import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiNotFoundException;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.AssignRoleResult;
+import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiNotFoundException;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +50,22 @@ public class PegawaiService {
         ).toList();
     }
 
-    public Pegawai findPegawaiByPegawaiId(String nip) {
-        return pegawaiRepository.findByNip(nip)
+    public PegawaiView findPegawaiByPegawaiId(String nip) {
+        Pegawai pegawai =  pegawaiRepository.findByNip(nip)
                 .orElseThrow(() -> new PegawaiNotFoundException(nip));
+
+        JabatanPegawaiView jabatanPegawai = jabatanPegawaiRepository.findAllByPegawaiId(pegawai.id())
+                .stream().filter(JabatanPegawai::isAktif)
+                .map(JabatanPegawai::toJabatanPegawaiView)
+                .findFirst()
+                .orElseThrow(JabatanPegawaiNotFoundException::new);
+
+        AssignRoleResult role = rolePegawaiService.findAllByPegawaiId(pegawai.id())
+                .stream()
+                .findFirst()
+                .orElseThrow(RolePegawaiNotFoundException::new);
+
+        return new PegawaiView(pegawai, jabatanPegawai, role);
     }
 
 
