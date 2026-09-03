@@ -7,6 +7,7 @@ import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiNotFoundE
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.AssignRoleResult;
+import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawai;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiNotFoundException;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiService;
 import org.slf4j.Logger;
@@ -90,6 +91,14 @@ public class PegawaiService {
                 jabatanPegawais,
                 rolePegawais
         );
+    }
+
+    public List<Pegawai> findPegawaiByRoleName(String namaRole) {
+        List<RolePegawai> rolePegawais = rolePegawaiService.findPegawaiByRoleName(namaRole);
+        return rolePegawais.stream()
+                .map(rp -> pegawaiRepository.findById(rp.pegawaiId())
+                        .orElseThrow(() -> new PegawaiNotFoundException(rp.pegawaiId())))
+                .toList();
     }
 
     @Transactional

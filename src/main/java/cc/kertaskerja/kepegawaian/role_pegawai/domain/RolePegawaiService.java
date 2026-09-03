@@ -30,4 +30,9 @@ public class RolePegawaiService {
                     return new AssignRoleResult(rolePeg, role);
                 }).toList();
     }
+
+    public List<RolePegawai> findPegawaiByRoleName(String namaRole) {
+        Role role = roleService.findRoleByNamaRole(namaRole);
+        return rolePegawaiRepository.findByRoleId(role.id());
+    }
 }

@@ -1,7 +1,9 @@
 package cc.kertaskerja.kepegawaian.pegawai.web;
 
 import cc.kertaskerja.kepegawaian.pegawai.domain.MigrationSummary;
+import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiByRoleNotFoundException;
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiService;
+import cc.kertaskerja.kepegawaian.role.domain.RoleNotFoundException;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -242,6 +244,51 @@ public class PegawaiController {
         return WebResponse.success(
                 PegawaiDetailResponse.from(pegawaiService.findPegawaiByPegawaiId(nip))
         );
+    }
+
+    @GetMapping("/findByRole")
+    @Operation(
+            summary = "Find pegawai by nama role",
+            description = "Mengembalikan daftar pegawai berdasarkan nama role.",
+            security = @SecurityRequirement(name = "sessionId")
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Pegawai berhasil ditemukan",
+                    content = @Content(
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = PegawaiResponse.class)
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Parameter nama role tidak valid"),
+            @ApiResponse(responseCode = "401", description = "Token tidak valid"),
+            @ApiResponse(responseCode = "404", description = "Role tidak ditemukan")
+    })
+    public WebResponse<List<PegawaiResponse>> findByRole(
+            @Parameter(
+                    description = "Nama role",
+                    example = "admin",
+                    required = true
+            )
+            @RequestParam String roleName
+    ) {
+        List<PegawaiResponse> responses;
+        try {
+            responses = pegawaiService.findPegawaiByRoleName(roleName)
+                    .stream()
+                    .map(PegawaiResponse::from)
+                    .toList();
+        } catch (RoleNotFoundException e) {
+            throw new PegawaiByRoleNotFoundException(roleName);
+        }
+
+        if (responses.isEmpty()) {
+            throw new PegawaiByRoleNotFoundException(roleName);
+        }
+
+        return WebResponse.success(responses);
     }
 
 }

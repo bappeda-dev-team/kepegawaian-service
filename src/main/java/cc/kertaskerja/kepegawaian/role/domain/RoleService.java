@@ -25,6 +25,11 @@ public class RoleService {
             .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
+    public Role findRoleByNamaRole(String namaRole) {
+        return roleRepository.findByNamaRole(namaRole)
+                .orElseThrow(() -> new RoleNotFoundException(namaRole));
+    }
+
     @Transactional
     public Role create(Role newRole) {
         String kodeRole = kodeRoleMaker(newRole.namaRole());
