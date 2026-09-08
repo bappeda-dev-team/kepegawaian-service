@@ -58,7 +58,7 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     }
 
     @Override
-    public String createUser(CreateIdentityRequest request) {
+    public CreateUserResult createUser(CreateIdentityRequest request) {
 
         UserRepresentation user = mapper.toRepresentation(request);
 
@@ -70,7 +70,7 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
             user.setId(userId);
 
             realm().users().get(userId).update(user);
-            return userId;
+            return new CreateUserResult(userId, false);
         }
 
         try(Response response = realm().users().create(user)) {
@@ -79,7 +79,9 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
                         "Unable to create user. Status = " + response.getStatus()
                 );
             }
-            return CreatedResponseUtil.getCreatedId(response);
+            String newUserId =  CreatedResponseUtil.getCreatedId(response);
+
+            return new CreateUserResult(newUserId, false);
         }
     }
 

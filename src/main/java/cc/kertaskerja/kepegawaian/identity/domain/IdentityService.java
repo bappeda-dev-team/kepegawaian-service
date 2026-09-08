@@ -3,7 +3,7 @@ package cc.kertaskerja.kepegawaian.identity.domain;
 import java.util.List;
 
 public interface IdentityService {
-    String createUser(CreateIdentityRequest request);
+    CreateUserResult createUser(CreateIdentityRequest request);
 
     void updateUser(String userId, UpdateIdentityRequest request);
 

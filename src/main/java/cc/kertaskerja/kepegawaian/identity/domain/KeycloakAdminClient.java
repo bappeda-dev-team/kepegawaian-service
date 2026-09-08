@@ -7,7 +7,7 @@ public interface KeycloakAdminClient {
 
     Optional<String> findUserIdByUsername(String username);
 
-    String createUser(CreateIdentityRequest request);
+    CreateUserResult createUser(CreateIdentityRequest request);
 
     void updateUser(String userId, UpdateIdentityRequest request);
 

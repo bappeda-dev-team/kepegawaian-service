@@ -15,7 +15,7 @@ public class KeycloakIdentityService implements IdentityService {
     }
 
     @Override
-    public String createUser(@Valid CreateIdentityRequest request) {
+    public CreateUserResult createUser(@Valid CreateIdentityRequest request) {
         return keycloakAdminClient.createUser(request);
     }
 
