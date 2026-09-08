@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.identity.domain;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IdentityService {
     CreateUserResult createUser(CreateIdentityRequest request);
@@ -13,6 +14,5 @@ public interface IdentityService {
 
     void resetPassword(String userId, String password, boolean temporary);
 
-    void assignRoles(String userId, List<String> roles);
-
+    void assignRoles(String userId, Set<String> roles);
 }

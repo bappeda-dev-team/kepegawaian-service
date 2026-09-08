@@ -16,10 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.swing.text.html.Option;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class KeycloakAdminClientImpl implements KeycloakAdminClient {
@@ -144,10 +142,18 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
             String userId,
             Collection<String> roleNames
     ) {
+        log.info(
+                "Assigning roles. userId={}, roles={}",
+                userId,
+                roleNames
+        );
 
         List<RoleRepresentation> roles =
                 roleNames.stream()
-                        .map(name -> realm().roles().get(name).toRepresentation())
+                        .map(name -> realm()
+                                .roles()
+                                .get(name)
+                                .toRepresentation())
                         .toList();
 
         realm()
@@ -156,6 +162,12 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
                 .roles()
                 .realmLevel()
                 .add(roles);
+
+        log.info(
+                "Roles assigned. userId={}, roles={}",
+                userId,
+                roleNames
+        );
     }
 
     @Override
@@ -175,6 +187,19 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
                 .roles()
                 .realmLevel()
                 .remove(roles);
+    }
+
+    @Override
+    public Set<String> findRoles(String userId) {
+        return realm()
+                .users()
+                .get(userId)
+                .roles()
+                .realmLevel()
+                .listAll()
+                .stream()
+                .map(RoleRepresentation::getName)
+                .collect(Collectors.toSet());
     }
 
     private UserResource user(String userId) {

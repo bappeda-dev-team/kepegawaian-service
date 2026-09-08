@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class KeycloakIdentityService implements IdentityService {
@@ -53,12 +54,11 @@ public class KeycloakIdentityService implements IdentityService {
     @Override
     public void assignRoles(
             String userId,
-            List<String> roles
+            Set<String> roles
     ) {
         keycloakAdminClient.assignRoles(
                 userId,
                 roles
         );
     }
-
 }

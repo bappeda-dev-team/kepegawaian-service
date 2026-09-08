@@ -52,7 +52,6 @@ public class PegawaiService {
     }
 
     public List<Pegawai> findAll() {
-        // TODO: implement pagination
         return Streamable.of(
                 pegawaiRepository.findAll()
         ).toList();
@@ -139,7 +138,7 @@ public class PegawaiService {
     @Transactional
     public MigrationSummary migratePegawaiToKeycloak() {
 
-        List<Pegawai> pegawais = pegawaiRepository.findWithoutKeycloakUserId();
+        List<Pegawai> pegawais = findAll();
 
         List<PegawaiIdentityData> identities = mapToIdentityData(pegawais);
 
@@ -247,6 +246,13 @@ public class PegawaiService {
                     identityProperties.migration().temporaryPassword()
             );
         }
+
+        log.info("ASSIGN ROLES FOR pegawai={}", data.pegawai().namaPegawai());
+
+        identityService.assignRoles(
+                result.userId(),
+                data.roles()
+        );
 
         // update pegawai keycloak id
         linkKeycloakUser(data.pegawai(), result.userId());

@@ -2,6 +2,7 @@ package cc.kertaskerja.kepegawaian.identity.domain;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public interface KeycloakAdminClient {
 
@@ -30,4 +31,6 @@ public interface KeycloakAdminClient {
             String userId,
             Collection<String> roleNames
     );
+
+    Set<String> findRoles(String userId);
 }
