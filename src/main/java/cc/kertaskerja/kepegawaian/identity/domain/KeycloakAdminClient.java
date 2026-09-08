@@ -1,8 +1,11 @@
 package cc.kertaskerja.kepegawaian.identity.domain;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface KeycloakAdminClient {
+
+    Optional<String> findUserIdByUsername(String username);
 
     String createUser(CreateIdentityRequest request);
 

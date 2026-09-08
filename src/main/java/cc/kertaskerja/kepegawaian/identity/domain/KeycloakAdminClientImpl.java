@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.identity.domain;
 
 import cc.kertaskerja.kepegawaian.config.IdentityProperties;
+import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiService;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -10,10 +11,15 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.Option;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class KeycloakAdminClientImpl implements KeycloakAdminClient {
@@ -21,6 +27,7 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     private final Keycloak keycloak;
     private final IdentityProperties properties;
     private final UserRepresentationMapper mapper;
+    private final Logger log = LoggerFactory.getLogger(KeycloakAdminClientImpl.class);
 
 
     public KeycloakAdminClientImpl(Keycloak keycloak, IdentityProperties properties, UserRepresentationMapper mapper) {
@@ -34,9 +41,37 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     }
 
     @Override
+    public Optional<String> findUserIdByUsername(String username) {
+        // find users
+        List<UserRepresentation> users = realm().users()
+                .searchByUsername(username, true);
+
+        if (users.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (users.size() > 1) {
+            throw new IdentityException("Multiple users found for username: " + username);
+        }
+
+        return Optional.of(users.getFirst().getId());
+    }
+
+    @Override
     public String createUser(CreateIdentityRequest request) {
 
         UserRepresentation user = mapper.toRepresentation(request);
+
+        // check existing user in keycloak
+        Optional<String> existingUserId = findUserIdByUsername(user.getUsername());
+
+        if (existingUserId.isPresent()) {
+            String userId = existingUserId.get();
+            user.setId(userId);
+
+            realm().users().get(userId).update(user);
+            return userId;
+        }
 
         try(Response response = realm().users().create(user)) {
             if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
