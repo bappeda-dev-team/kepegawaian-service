@@ -1,27 +1,26 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
 import cc.kertaskerja.kepegawaian.identity.domain.CreateIdentityRequest;
+import cc.kertaskerja.kepegawaian.identity.domain.IdentityAttributes;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class IdentityMapper {
 
-    public CreateIdentityRequest toCreateIdentityRequest(Pegawai pegawai, String kodeOpd) {
-        // WARNING HARD CODE EMAIL
-        String email = pegawai.nip() + "@kertaskerja.cc";
-        String lastName = pegawai.namaPegawai();
+    public CreateIdentityRequest toCreateIdentityRequest(PegawaiIdentityData data) {
+        Pegawai pegawai = data.pegawai();
+
         return new CreateIdentityRequest(
                 pegawai.nip(),
-                email,
+                // WARNING HARD CODE EMAIL
+                pegawai.nip() + "@kertaskerja.cc",
                 pegawai.namaPegawai(),
-                lastName,
+                pegawai.namaPegawai(),
                 true,
-                Map.of(
-                        "nip", List.of(pegawai.nip()),
-                        "kode_opd", List.of(kodeOpd)
+                new IdentityAttributes(
+                        pegawai.nip(),
+                        data.kodeOpd(),
+                        data.namaOpd()
                 )
         );
     }

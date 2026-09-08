@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
 import cc.kertaskerja.kepegawaian.config.IdentityProperties;
+import cc.kertaskerja.kepegawaian.identity.domain.CreateUserResult;
 import cc.kertaskerja.kepegawaian.identity.domain.IdentityService;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiNotFoundException;
@@ -16,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +32,9 @@ public class PegawaiService {
     private final IdentityProperties identityProperties;
     private final Logger log = LoggerFactory.getLogger(PegawaiService.class);
     private final RolePegawaiService rolePegawaiService;
+
+    private static final String DEFAULT_KODE_OPD = "0.00.0.00.0.0000";
+    private static final String DEFAULT_NAMA_OPD = "UNKNOWN";
 
     public PegawaiService(PegawaiRepository pegawaiRepository,
                           JabatanPegawaiRepository jabatanPegawaiRepository,
@@ -100,23 +108,7 @@ public class PegawaiService {
             throw new PegawaiAlreadyExistsException(nip);
         }
 
-        Pegawai savedPegawai = pegawaiRepository.save(newPegawai);
-        // TODO UPDATE CREATE REQUEST TO ACCEPT OPD
-        String kodeOpd = "0.00.0.00.0.0000";
-
-        String userId = identityService.createUser(
-                identityMapper.toCreateIdentityRequest(savedPegawai, kodeOpd)
-        );
-
-        identityService.resetPassword(
-                userId,
-                initialPassword,
-                true // wajib ganti password saat login pertama
-        );
-
-        Pegawai updatedPegawai = savedPegawai.withKeycloakUserId(userId);
-
-        return pegawaiRepository.save(updatedPegawai);
+        return pegawaiRepository.save(newPegawai);
     }
 
     @Transactional
@@ -149,54 +141,126 @@ public class PegawaiService {
 
         List<Pegawai> pegawais = pegawaiRepository.findWithoutKeycloakUserId();
 
-        int success = 0;
+        List<PegawaiIdentityData> identities = mapToIdentityData(pegawais);
+
+        int created = 0;
         int failed = 0;
         int linked = 0;
 
-        for (Pegawai pegawai : pegawais) {
+        for (PegawaiIdentityData identity : identities) {
             try {
-                migratePegawai(pegawai);
-                success++;
+                MigrationResult result = migratePegawai(identity);
+                if (result == MigrationResult.CREATED) {
+                    created++;
+                } else if (result == MigrationResult.LINKED) {
+                    linked++;
+                }
             } catch (Exception ex) {
                 failed++;
 
                 log.error(
                         "Failed migrating pegawai id={}, nip={}",
-                        pegawai.id(),
-                        pegawai.nip(),
+                        identity.pegawai().id(),
+                        identity.pegawai().nip(),
                         ex
                 );
             }
         }
 
-        log.info("Migration finished");
+        log.info(
+                "Migration finished. total={}, created={}, linked={}, failed={}",
+                pegawais.size(),
+                created,
+                linked,
+                failed
+        );
 
         return new MigrationSummary(
                 pegawais.size(),
-                success,
+                created,
                 linked,
                 failed
         );
     }
 
+    // mapping keycloak attributes from pegawai records
+    private List<PegawaiIdentityData> mapToIdentityData(
+            List<Pegawai> pegawais
+    ) {
+        List<Long> pegawaiIds = pegawais.stream()
+                .map(Pegawai::id)
+                .toList();
+
+        Map<Long, JabatanPegawai> jabatanByPegawaiId =
+                jabatanPegawaiRepository
+                        .findActivePrimaryByPegawaiIdIn(pegawaiIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                JabatanPegawai::pegawaiId,
+                                Function.identity()
+                        ));
+
+        List<AssignRoleResult> assignments =
+                rolePegawaiService.findAllByPegawaiIdIn(pegawaiIds);
+
+        Map<Long, Set<String>> rolesByPegawaiId =
+                assignments.stream()
+                        .collect(Collectors.groupingBy(
+                                result -> result.assignment().pegawaiId(),
+                                Collectors.mapping(
+                                        result -> result.role().namaRole(),
+                                        Collectors.toSet()
+                                )
+                        ));
+
+        return pegawais.stream()
+                .map(pegawai -> {
+                    JabatanPegawai jabatan =
+                            jabatanByPegawaiId.get(pegawai.id());
+
+                    return new PegawaiIdentityData(
+                            pegawai,
+                            jabatan != null
+                                    ? jabatan.kodeOpd()
+                                    : DEFAULT_KODE_OPD,
+                            jabatan != null
+                                    ? jabatan.namaOpd()
+                                    : DEFAULT_NAMA_OPD,
+                            rolesByPegawaiId.getOrDefault(
+                                    pegawai.id(),
+                                    Set.of()
+                            )
+                    );
+                })
+                .toList();
+    }
+
+    protected MigrationResult migratePegawai(PegawaiIdentityData data) {
+        CreateUserResult result = identityService.createUser(
+                identityMapper.toCreateIdentityRequest(data)
+        );
+
+        if (result.created()) {
+            identityService.resetPassword(
+                    result.userId(),
+                    identityProperties.migration().defaultPassword(),
+                    identityProperties.migration().temporaryPassword()
+            );
+        }
+
+        // update pegawai keycloak id
+        linkKeycloakUser(data.pegawai(), result.userId());
+
+        return result.created()
+                ? MigrationResult.CREATED
+                : MigrationResult.LINKED;
+    }
+
     @Transactional
-    protected void migratePegawai(Pegawai pegawai) {
-
-        String kodeOpd = jabatanPegawaiRepository
-                .findActivePrimaryByPegawaiId(pegawai.id())
-                .map(JabatanPegawai::kodeOpd)
-                .orElse("0.00.0.00.0.0000");
-
-        String userId = identityService.createUser(
-                identityMapper.toCreateIdentityRequest(pegawai, kodeOpd)
-        );
-
-        identityService.resetPassword(
-                userId,
-                identityProperties.migration().defaultPassword(),
-                identityProperties.migration().temporaryPassword()
-        );
-
+    protected void linkKeycloakUser(
+            Pegawai pegawai,
+            String userId
+    ) {
         pegawaiRepository.save(
                 pegawai.withKeycloakUserId(userId)
         );

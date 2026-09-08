@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface RolePegawaiRepository extends CrudRepository<RolePegawai, Long> {
     List<RolePegawai> findByPegawaiId(Long pegawaiId);
+    List<RolePegawai> findByPegawaiIdIn(List<Long> pegawaiId);
 
     void deleteByRoleIdAndPegawaiId(Long roleId, Long pegawaiId);
 

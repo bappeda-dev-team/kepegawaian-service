@@ -11,4 +11,5 @@ public interface JabatanPegawaiRepository extends CrudRepository<JabatanPegawai,
     List<JabatanPegawai> findAllByPegawaiIdAndOpdId(Long pegawaiId, Long opdId);
 
     Optional<JabatanPegawai> findActivePrimaryByPegawaiId(Long pegawaiId);
+    List<JabatanPegawai> findActivePrimaryByPegawaiIdIn(List<Long> pegawaiIds);
 }
