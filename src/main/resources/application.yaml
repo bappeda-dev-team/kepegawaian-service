@@ -46,6 +46,7 @@ management:
 kertaskerja:
   kode-lembaga: x.xx
   status: KEPEGAWAIAN-UP
+  integration-enabled: false
   security:
     mode: resource_server
   cors:
@@ -65,3 +66,9 @@ identity:
   migration:
     default-password: "-"
     temporary-password: true
+
+integration:
+  simpeg:
+    base-url: http://localhost:8080
+    api-path: api-path
+

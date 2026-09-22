@@ -185,4 +185,15 @@ public class OpdController {
         opdService.delete(id);
         return WebResponse.deleted("OPD " + namaOpd + " berhasil dihapus");
     }
+
+    @PostMapping("/sync")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "Sync OPD Simpeg",
+            description = "Update OPD Data From Upstream"
+    )
+    public WebResponse<String> syncSimpeg() {
+        opdService.syncSimpeg();
+        return WebResponse.success("Sync OPD Simpeg");
+    }
 }

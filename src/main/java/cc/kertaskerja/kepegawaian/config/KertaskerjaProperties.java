@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record KertaskerjaProperties(
         String kodeLembaga,
         String status,
+        boolean integrationEnabled,
         SecurityProperties security,
         CorsProperties cors) {
 }

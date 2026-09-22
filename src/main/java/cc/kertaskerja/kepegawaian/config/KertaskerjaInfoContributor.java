@@ -17,7 +17,8 @@ public class KertaskerjaInfoContributor implements InfoContributor {
     @Override
     public void contribute(Info.Builder builder) {
         builder.withDetail("kertaskerja", Map.of(
-                "kode-lembaga", kertaskerjaProperties.kodeLembaga()
+                "kode-lembaga", kertaskerjaProperties.kodeLembaga(),
+                "integration-enabled", kertaskerjaProperties.integrationEnabled()
         ));
     }
 }

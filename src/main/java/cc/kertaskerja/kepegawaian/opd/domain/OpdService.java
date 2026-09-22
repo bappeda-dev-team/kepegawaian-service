@@ -1,10 +1,18 @@
 package cc.kertaskerja.kepegawaian.opd.domain;
 
 import cc.kertaskerja.kepegawaian.config.KertaskerjaProperties;
+import cc.kertaskerja.kepegawaian.integration.simpeg.SimpegClient;
+import cc.kertaskerja.kepegawaian.integration.simpeg.dto.SimpegOpdResponse;
+import cc.kertaskerja.kepegawaian.integration.simpeg.mapper.SimpegOpdMapper;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.MappingOpd;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.MappingOpdRepository;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.SumberMapping;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -12,10 +20,18 @@ public class OpdService {
 
     private final OpdRepository opdRepository;
     private final KertaskerjaProperties kertaskerjaProperties;
+    private final SimpegClient simpegClient;
+    private final MappingOpdRepository mappingOpdRepository;
 
-    public OpdService(OpdRepository opdRepository, KertaskerjaProperties kertaskerjaProperties) {
+    public OpdService(
+            OpdRepository opdRepository,
+            KertaskerjaProperties kertaskerjaProperties,
+            SimpegClient simpegClient,
+            MappingOpdRepository mappingOpdRepository) {
         this.opdRepository = opdRepository;
         this.kertaskerjaProperties = kertaskerjaProperties;
+        this.simpegClient = simpegClient;
+        this.mappingOpdRepository = mappingOpdRepository;
     }
 
     public List<Opd> findAllOpdAktifInLembaga() {
@@ -80,5 +96,45 @@ public class OpdService {
         // guard opd not found
         findOpdById(id);
         opdRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void syncSimpeg() {
+
+        String sumberMapping = SumberMapping.SIMPEG.name();
+
+        List<MappingOpd> mappingOpds =
+                mappingOpdRepository.findBySumber(sumberMapping);
+
+        Map<String, String> mappingByKodeSumber =
+                mappingOpds.stream()
+                        .collect(Collectors.toMap(
+                                MappingOpd::kodeSumber,
+                                MappingOpd::kodeMaster
+                        ));
+
+        List<SimpegOpdResponse> responses =
+                simpegClient.findAllOpd("1");
+
+        SimpegOpdMapper mapper =
+                new SimpegOpdMapper(kertaskerjaProperties);
+
+        List<Opd> opds = responses.stream()
+                .filter(response ->
+                        mappingByKodeSumber.containsKey(
+                                response.opdKode()
+                        )
+                )
+                .map(response ->
+                        mapper.toDomain(
+                                response,
+                                mappingByKodeSumber.get(
+                                        response.opdKode()
+                                )
+                        )
+                )
+                .toList();
+
+        opdRepository.saveAll(opds);
     }
 }
