@@ -9,3 +9,6 @@ CREATE TABLE role_pegawai (
     CONSTRAINT uk_role_pegawai
         UNIQUE (pegawai_id, role_id)
 );
+
+CREATE INDEX idx_role_pegawai_role_id
+    ON role_pegawai(role_id);

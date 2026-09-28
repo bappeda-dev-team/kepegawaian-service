@@ -6,3 +6,6 @@ CREATE TABLE pegawai (
     created_date        TIMESTAMP NOT NULL DEFAULT(NOW()),
     last_modified_date  TIMESTAMP NOT NULL DEFAULT(NOW())
 );
+
+CREATE INDEX idx_pegawai_status_pegawai
+    ON pegawai(status_pegawai);

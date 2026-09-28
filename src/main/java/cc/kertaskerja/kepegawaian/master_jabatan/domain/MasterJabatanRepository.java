@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MasterJabatanRepository extends CrudRepository<MasterJabatan, Long> {
-    List<MasterJabatan> findAllByStatusJabatanOrderByNamaJabatan(MasterJabatanStatus jabatanStatus);
+    List<MasterJabatan> findAllByOpdIdAndStatusJabatanOrderByNamaJabatan(Long opdId, MasterJabatanStatus jabatanStatus);
 
-    boolean existsByKodeJabatan(String kodeJabatan);
+    boolean existsByOpdIdAndKodeJabatan(Long opdId, String kodeJabatan);
 
     Optional<MasterJabatan> findByKodeJabatan(String kodeJabatan);
 }

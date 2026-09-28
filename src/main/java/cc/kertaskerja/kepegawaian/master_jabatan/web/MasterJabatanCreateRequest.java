@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record MasterJabatanCreateRequest(
+        @NotNull(message = "OPD wajib dipilih")
+        Long opdId,
+
         @NotBlank(message = "Nama jabatan wajib terisi")
         @NotNull
         String namaJabatan,
@@ -15,6 +18,7 @@ public record MasterJabatanCreateRequest(
 
     public MasterJabatan toCommand() {
         return MasterJabatan.of(
+                opdId,
     null,
                 namaJabatan,
                 jenjangJabatan,

@@ -5,11 +5,13 @@ import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatan;
 public record MasterJabatanResponse(
         Long id,
 
+        Long opdId,
+
         String kodeJabatan,
 
         String namaJabatan,
 
-        String kategoiJabatan,
+        String kategoriJabatan,
 
         String jenjangJabatan,
 
@@ -18,6 +20,7 @@ public record MasterJabatanResponse(
     public static MasterJabatanResponse from(MasterJabatan masterJabatan) {
         return new MasterJabatanResponse(
                 masterJabatan.id(),
+                masterJabatan.opdId(),
                 masterJabatan.kodeJabatan(),
                 masterJabatan.namaJabatan(),
                 masterJabatan.jenjangJabatan().getKategori().toString(),

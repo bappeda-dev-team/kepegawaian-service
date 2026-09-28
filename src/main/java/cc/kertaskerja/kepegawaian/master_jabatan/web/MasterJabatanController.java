@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.master_jabatan.web;
 
 import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
+import cc.kertaskerja.kepegawaian.integration.simpeg.web.SimpegSyncRequest;
 import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanService;
 import cc.kertaskerja.kepegawaian.common.web.EnumLabelResponse;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
@@ -35,8 +36,10 @@ public class MasterJabatanController {
             summary = "Daftar seluruh jabatan",
             description = "Mengambil seluruh data master jabatan"
     )
-    public WebResponse<List<MasterJabatanResponse>> findAll() {
-        List<MasterJabatanResponse> responses = masterJabatanService.findAll()
+    public WebResponse<List<MasterJabatanResponse>> findAll(
+            @RequestParam(name = "opdId") Long opdId
+    ) {
+        List<MasterJabatanResponse> responses = masterJabatanService.findAllByOpdId(opdId)
                 .stream()
                 .map(MasterJabatanResponse::from)
                 .toList();
@@ -66,8 +69,7 @@ public class MasterJabatanController {
                 masterJabatanService.findMasterJabatanById(id)
         );
 
-        return WebResponse.success(response);
-    }
+        return WebResponse.success(response);}
 
     @GetMapping("/options/jenjang")
     @Operation(
@@ -200,8 +202,10 @@ public class MasterJabatanController {
             description = "Simplifikasi Data Master Jabatan untuk dropdown",
             security = @SecurityRequirement(name = "sessionId")
     )
-    public WebResponse<List<OptionResponse>> dropdownAll() {
-        List<OptionResponse> responses = masterJabatanService.findAll()
+    public WebResponse<List<OptionResponse>> dropdownAll(
+            @RequestParam(required = false) Long opdId
+    ) {
+        List<OptionResponse> responses = masterJabatanService.findAllByOpdId(opdId)
                 .stream()
                 .map(OptionResponse::of)
                 .toList();
@@ -213,4 +217,17 @@ public class MasterJabatanController {
                 responses
         );
     }
+
+    @PostMapping("/sync")
+    @Operation(
+            summary = "Sync Data Master Jabatan By Kode OPD",
+            description = "Synchronize master Jabatan data for a specific OPD from the upstream SIMPEG service."
+    )
+    public WebResponse<String> syncJabatanSimpeg(
+            @Valid @RequestBody SimpegSyncRequest request
+    ) {
+        masterJabatanService.syncJabatanDariSimpeg(request.opdId());
+        return WebResponse.success("Sync Master Jabatan Simpeg");
+    }
+
 }

@@ -10,3 +10,8 @@ CREATE TABLE opd (
 
     CONSTRAINT uk_opd_kode_opd UNIQUE (kode_opd)
 );
+CREATE INDEX idx_opd_kode_lembaga
+    ON opd(kode_lembaga);
+
+CREATE INDEX idx_opd_status_opd
+    ON opd(status_opd);

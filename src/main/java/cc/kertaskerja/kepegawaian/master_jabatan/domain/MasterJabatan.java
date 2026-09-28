@@ -14,6 +14,9 @@ public record MasterJabatan(
         @Id
         Long id,
 
+        @Column("opd_id")
+        Long opdId,
+
         @Column("kode_jabatan")
         String kodeJabatan,
 
@@ -34,12 +37,14 @@ public record MasterJabatan(
 ) implements Optionable {
 
         public static MasterJabatan of(
+            Long opdId,
             String kodeJabatan,
             String namaJabatan,
             MasterJabatanJenjang jenjangJabatan,
             MasterJabatanStatus statusJabatan) {
                 return new MasterJabatan(
                         null,
+                        opdId,
                         kodeJabatan,
                         namaJabatan,
                         jenjangJabatan,
@@ -49,12 +54,14 @@ public record MasterJabatan(
         }
 
         public MasterJabatan update(
+                Long opdId,
                 String namaJabatan,
                 MasterJabatanJenjang jenjangJabatan,
                 String kodeJabatan
         ) {
                 return new MasterJabatan(
                         id,
+                        opdId,
                         kodeJabatan,
                         namaJabatan,
                         jenjangJabatan,

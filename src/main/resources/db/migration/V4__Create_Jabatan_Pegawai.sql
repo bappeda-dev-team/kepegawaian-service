@@ -17,3 +17,16 @@ CREATE TABLE jabatan_pegawai (
     created_date            TIMESTAMP NOT NULL DEFAULT(NOW()),
     last_modified_date      TIMESTAMP NOT NULL DEFAULT(NOW())
 );
+
+CREATE INDEX idx_jabatan_pegawai_pegawai_id
+    ON jabatan_pegawai(pegawai_id);
+
+CREATE INDEX idx_jabatan_pegawai_master_jabatan_id
+    ON jabatan_pegawai(master_jabatan_id);
+
+CREATE INDEX idx_jabatan_pegawai_opd_id
+    ON jabatan_pegawai(opd_id);
+
+CREATE INDEX idx_jabatan_pegawai_aktif
+    ON jabatan_pegawai(pegawai_id)
+    WHERE tmt_akhir IS NULL;

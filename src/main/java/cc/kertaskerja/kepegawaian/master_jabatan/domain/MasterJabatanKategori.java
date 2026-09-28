@@ -7,6 +7,7 @@ public enum MasterJabatanKategori implements LabeledEnum {
     STRUKTURAL("Jabatan Struktural"),
     FUNGSIONAL_AHLI("Jabatan Fungsional Ahli"),
     FUNGSIONAL_KETERAMPILAN("Jabatan Fungsional Keterampilan"),
+    FUNGSIONAL_TERTENTU_TEKNIS("Jabatan Fungsional Tertentu - Teknis"),
     ADMINISTRASI("Jabatan Administrasi"),
     PELAKSANA("Jabatan Pelaksana"),
     LAINNYA("Belum Ada Kategori");
