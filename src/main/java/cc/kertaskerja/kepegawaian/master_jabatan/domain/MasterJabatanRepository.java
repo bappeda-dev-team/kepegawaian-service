@@ -11,4 +11,6 @@ public interface MasterJabatanRepository extends CrudRepository<MasterJabatan, L
     boolean existsByOpdIdAndKodeJabatan(Long opdId, String kodeJabatan);
 
     Optional<MasterJabatan> findByKodeJabatan(String kodeJabatan);
+
+    List<MasterJabatan> findByKodeJabatanIn(List<String> kodeJabatans);
 }

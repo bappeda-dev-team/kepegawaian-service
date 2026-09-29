@@ -1,5 +1,6 @@
 package cc.kertaskerja.kepegawaian.pegawai.web;
 
+import cc.kertaskerja.kepegawaian.integration.simpeg.web.SimpegSyncRequest;
 import cc.kertaskerja.kepegawaian.pegawai.domain.MigrationSummary;
 import cc.kertaskerja.kepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
@@ -244,4 +245,15 @@ public class PegawaiController {
         );
     }
 
+    @PostMapping("/sync")
+    @Operation(
+            summary = "Sync Data Pegawai By Kode OPD",
+            description = "Synchronize Pegawai data for a specific OPD from the upstream SIMPEG service."
+    )
+    public WebResponse<String> syncJabatanSimpeg(
+            @Valid @RequestBody SimpegSyncRequest request
+    ) {
+        pegawaiService.syncPegawaiDariSimpeg(request.opdId());
+        return WebResponse.success("Sync Master Pegawai Simpeg");
+    }
 }

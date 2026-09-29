@@ -7,10 +7,11 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface PegawaiRepository extends CrudRepository<Pegawai, Long> {
+public interface PegawaiRepository extends CrudRepository<Pegawai, Long>, PegawaiRepositoryCustom {
     Long countByStatusPegawai(PegawaiStatus statusPegawai);
     Optional<Pegawai> findByNip(String nip);
     boolean existsByNip(String nip);
+    List<Pegawai> findByNipIn(List<String> nips);
     @Query("""
         SELECT *
         FROM pegawai

@@ -3,10 +3,22 @@ package cc.kertaskerja.kepegawaian.pegawai.domain;
 import cc.kertaskerja.kepegawaian.config.IdentityProperties;
 import cc.kertaskerja.kepegawaian.identity.domain.CreateUserResult;
 import cc.kertaskerja.kepegawaian.identity.domain.IdentityService;
+import cc.kertaskerja.kepegawaian.integration.simpeg.SimpegClient;
+import cc.kertaskerja.kepegawaian.integration.simpeg.dto.SimpegJabatanPegawai;
+import cc.kertaskerja.kepegawaian.integration.simpeg.dto.SimpegPegawaiResponse;
+import cc.kertaskerja.kepegawaian.integration.simpeg.mapper.SimpegPegawaiMapper;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawai;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiNotFoundException;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiRepository;
 import cc.kertaskerja.kepegawaian.jabatan_pegawai.domain.JabatanPegawaiView;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.MappingOpd;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.MappingOpdRepository;
+import cc.kertaskerja.kepegawaian.mapping_opd.domain.SumberMapping;
+import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatan;
+import cc.kertaskerja.kepegawaian.master_jabatan.domain.MasterJabatanRepository;
+import cc.kertaskerja.kepegawaian.opd.domain.Opd;
+import cc.kertaskerja.kepegawaian.opd.domain.OpdNotFoundException;
+import cc.kertaskerja.kepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.AssignRoleResult;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiNotFoundException;
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiService;
@@ -16,37 +28,45 @@ import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
 public class PegawaiService {
     private final PegawaiRepository pegawaiRepository;
+    private final OpdRepository opdRepository;
+    private final MappingOpdRepository mappingOpdRepository;
+    private final SimpegClient simpegClient;
+    private final MasterJabatanRepository masterJabatanRepository;
     private final JabatanPegawaiRepository jabatanPegawaiRepository;
     private final IdentityService identityService;
-    private final IdentityMapper identityMapper;
     private final IdentityProperties identityProperties;
-    private final Logger log = LoggerFactory.getLogger(PegawaiService.class);
     private final RolePegawaiService rolePegawaiService;
 
+    private static final Logger log = LoggerFactory.getLogger(PegawaiService.class);
     private static final String DEFAULT_KODE_OPD = "0.00.0.00.0.0000";
     private static final String DEFAULT_NAMA_OPD = "UNKNOWN";
 
     public PegawaiService(PegawaiRepository pegawaiRepository,
+                          OpdRepository opdRepository,
+                          MappingOpdRepository mappingOpdRepository,
+                          SimpegClient simpegClient,
+                          MasterJabatanRepository masterJabatanRepository,
                           JabatanPegawaiRepository jabatanPegawaiRepository,
                           IdentityService identityService,
-                          IdentityMapper identityMapper,
                           IdentityProperties identityProperties,
                           RolePegawaiService rolePegawaiService
     ) {
         this.pegawaiRepository = pegawaiRepository;
+        this.opdRepository = opdRepository;
+        this.mappingOpdRepository = mappingOpdRepository;
+        this.simpegClient = simpegClient;
+        this.masterJabatanRepository = masterJabatanRepository;
         this.jabatanPegawaiRepository = jabatanPegawaiRepository;
         this.identityService = identityService;
-        this.identityMapper = identityMapper;
         this.identityProperties = identityProperties;
         this.rolePegawaiService = rolePegawaiService;
     }
@@ -58,7 +78,7 @@ public class PegawaiService {
     }
 
     public PegawaiView findPegawaiByPegawaiId(String nip) {
-        Pegawai pegawai =  pegawaiRepository.findByNip(nip)
+        Pegawai pegawai = pegawaiRepository.findByNip(nip)
                 .orElseThrow(() -> new PegawaiNotFoundException(nip));
 
         JabatanPegawaiView jabatanPegawai = jabatanPegawaiRepository.findAllByPegawaiId(pegawai.id())
@@ -78,7 +98,7 @@ public class PegawaiService {
 
     public Pegawai findPegawaiById(Long id) {
         return pegawaiRepository.findById(id)
-                .orElseThrow(()-> new PegawaiNotFoundException(id));
+                .orElseThrow(() -> new PegawaiNotFoundException(id));
     }
 
     public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
@@ -124,8 +144,12 @@ public class PegawaiService {
                 existingPegawai.update(
                         updatePegawai.nip(),
                         updatePegawai.namaPegawai(),
+                        updatePegawai.jenisKelamin(),
+                        updatePegawai.tempatLahir(),
+                        updatePegawai.tanggalLahir(),
+                        updatePegawai.jenisPegawai(),
                         updatePegawai.statusPegawai()
-        ));
+                ));
     }
 
     @Transactional
@@ -235,6 +259,7 @@ public class PegawaiService {
     }
 
     protected MigrationResult migratePegawai(PegawaiIdentityData data) {
+        IdentityMapper identityMapper = new IdentityMapper();
         CreateUserResult result = identityService.createUser(
                 identityMapper.toCreateIdentityRequest(data)
         );
@@ -270,5 +295,110 @@ public class PegawaiService {
         pegawaiRepository.save(
                 pegawai.withKeycloakUserId(userId)
         );
+    }
+
+    @Transactional
+    public void syncPegawaiDariSimpeg(Long opdId) {
+        // OPD ID DARI INTERNAL
+        // ambil opd dulu
+        // Cari OPD sekali saja
+        Opd opd = opdRepository.findById(opdId)
+                .orElseThrow(() ->
+                        new OpdNotFoundException(opdId)
+                );
+        // cari kode opd simpeg dulu
+        String sumberMapping = SumberMapping.SIMPEG.name();
+
+        // find opd mapper
+        // ambil kode opd simpeg (01, 02) dari
+        // kode opd asli (1.01.0.00.0.00.01.0000)
+        Optional<MappingOpd> mappingOpd = mappingOpdRepository
+                .findBySumberAndKodeMaster(
+                        sumberMapping,
+                        opd.kodeOpd()
+                );
+
+        if (mappingOpd.isEmpty()) {
+            return;
+        }
+        // ambil dari simpeg
+        // pakai kode opd simpeg untuk sync
+        List<SimpegPegawaiResponse> responses =
+                simpegClient.findPegawaiByKodeOpd(mappingOpd.get().kodeSumber());
+
+        SimpegPegawaiMapper mapper =
+                new SimpegPegawaiMapper();
+
+        // jabatan pegawai
+        List<SimpegJabatanPegawai> jabatanPegawais = responses.stream()
+                .map(source -> mapper.toJabatanPegawai(source, opdId))
+                .toList();
+        // unique pegawai
+        List<Pegawai> pegawais = responses.stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toMap(
+                        Pegawai::nip,
+                        Function.identity(),
+                        (existing, duplicate) -> existing
+                ))
+                .values()
+                .stream()
+                .toList();
+
+        // simpan all pegawai
+        pegawaiRepository.upsertAll(pegawais);
+
+        // cari pegawai id dari tersimpan
+        Map<String, Long> pegawaiIds =
+                pegawaiRepository
+                        .findByNipIn(
+                                pegawais
+                                        .stream()
+                                        .map(Pegawai::nip).toList()
+                        )
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Pegawai::nip,
+                                Pegawai::id
+                        ));
+
+        // jabatan pegawai dari master jabatan
+        Map<String, Long> jabatanIds =
+                masterJabatanRepository
+                        .findByKodeJabatanIn(
+                                jabatanPegawais
+                                        .stream()
+                                        .map(SimpegJabatanPegawai::kodeJabatan)
+                                        .toList()
+                        )
+                        .stream()
+                        .collect(Collectors.toMap(
+                                MasterJabatan::kodeJabatan,
+                                MasterJabatan::id
+                        ));
+
+        List<JabatanPegawai> listJabatanPegawais = jabatanPegawais.stream()
+                .flatMap(jabatan -> {
+                    Long pegawaiId = pegawaiIds.get(jabatan.nip());
+                    Long masterJabatanId = jabatanIds.get(jabatan.kodeJabatan());
+
+                    if (pegawaiId == null || masterJabatanId == null) {
+                        return Stream.empty();
+                    }
+
+                    return Stream.of(JabatanPegawai.aktif(
+                            pegawaiId,
+                            masterJabatanId,
+                            jabatan.namaJabatan(),
+                            opdId,
+                            opd.kodeOpd(),
+                            opd.namaOpd(),
+                            jabatan.mulaiJabatan()
+                    ));
+                })
+                .toList();
+
+        // simpan jabatan pegawai
+        jabatanPegawaiRepository.saveAll(listJabatanPegawais);
     }
 }
