@@ -162,7 +162,16 @@ public class PegawaiService {
     @Transactional
     public MigrationSummary migratePegawaiToKeycloak() {
 
-        List<Pegawai> pegawais = findAll();
+        // filter hanya yang lengkap yang kita migrasi ke keycloak
+        // opd / jabatan
+        // role
+        List<Pegawai> pegawais = findAll()
+                .stream()
+                .filter(peg -> {
+                    var jabatanPegawai = jabatanPegawaiRepository.findActivePrimaryByPegawaiId(peg.id());
+                    var rolePegawai = rolePegawaiService.findAllByPegawaiId(peg.id());
+                    return jabatanPegawai.isPresent() && !rolePegawai.isEmpty();
+                }).toList();
 
         List<PegawaiIdentityData> identities = mapToIdentityData(pegawais);
 

@@ -139,6 +139,8 @@ public class PegawaiController {
     public WebResponse<PegawaiResponse> create(
             @Valid @RequestBody PegawaiCreateRequest request
     ) {
+        // TODO: bagaimana caranya bisa inject langsung opd, jabatan, role
+        // dan langsung buat user
         PegawaiResponse response = PegawaiResponse.from(pegawaiService.create(
                 request.toCommand(), request.initialPassword()
         ));
