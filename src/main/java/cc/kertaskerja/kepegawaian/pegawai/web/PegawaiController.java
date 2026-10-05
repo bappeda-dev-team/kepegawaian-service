@@ -51,8 +51,18 @@ public class PegawaiController {
             ),
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
     })
-    public WebResponse<List<PegawaiResponse>> findAll() {
-        List<PegawaiResponse> responses = pegawaiService.findAll()
+    public WebResponse<List<PegawaiResponse>> findAll(
+            @Parameter(
+                    description = "Opd Id",
+                    example = "1",
+                    required = true
+            ) @RequestParam Long opdId,
+            @Parameter(
+                    description = "Role",
+                    example = "level_1"
+            ) @RequestParam(required = false) String role
+    ) {
+        List<PegawaiResponse> responses = pegawaiService.findAll(opdId, role)
                 .stream()
                 .map(PegawaiResponse::from)
                 .toList();
@@ -139,8 +149,6 @@ public class PegawaiController {
     public WebResponse<PegawaiResponse> create(
             @Valid @RequestBody PegawaiCreateRequest request
     ) {
-        // TODO: bagaimana caranya bisa inject langsung opd, jabatan, role
-        // dan langsung buat user
         PegawaiResponse response = PegawaiResponse.from(pegawaiService.create(
                 request.toCommand(), request.initialPassword()
         ));
@@ -210,8 +218,14 @@ public class PegawaiController {
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
             @ApiResponse(responseCode = "409", description = "Pegawai sudah ada")
     })
-    public WebResponse<MigrationSummary> migrate() {
-        MigrationSummary summary = pegawaiService.migratePegawaiToKeycloak();
+    public WebResponse<MigrationSummary> migrate(
+            @Parameter(
+                    description = "Opd Id",
+                    example = "1",
+                    required = true
+            ) @RequestParam Long opdId
+    ) {
+        MigrationSummary summary = pegawaiService.migratePegawaiToKeycloak(opdId);
 
         return WebResponse.ok("Migrasi Pegawai berhasil", summary);
     }

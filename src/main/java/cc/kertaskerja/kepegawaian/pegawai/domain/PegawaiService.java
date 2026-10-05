@@ -24,7 +24,6 @@ import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiNotFoundExcepti
 import cc.kertaskerja.kepegawaian.role_pegawai.domain.RolePegawaiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,10 +70,12 @@ public class PegawaiService {
         this.rolePegawaiService = rolePegawaiService;
     }
 
-    public List<Pegawai> findAll() {
-        return Streamable.of(
-                pegawaiRepository.findAll()
-        ).toList();
+    public List<Pegawai> findAll(Long opdId, String roleUser) {
+        if (roleUser == null || roleUser.isBlank()) {
+            return pegawaiRepository.findDistinctByJabatanPegawaiOpdId(opdId);
+
+        }
+        return pegawaiRepository.findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(opdId, roleUser);
     }
 
     public PegawaiView findPegawaiByPegawaiId(String nip) {
@@ -160,14 +161,15 @@ public class PegawaiService {
     }
 
     @Transactional
-    public MigrationSummary migratePegawaiToKeycloak() {
+    public MigrationSummary migratePegawaiToKeycloak(Long opdId) {
 
         // filter hanya yang lengkap yang kita migrasi ke keycloak
         // opd / jabatan
         // role
-        List<Pegawai> pegawais = findAll()
+        List<Pegawai> pegawais = findAll(opdId, "")
                 .stream()
                 .filter(peg -> {
+                    // ONLY MIGRATE YANG PUNYA JABATAN DAN ROLE
                     var jabatanPegawai = jabatanPegawaiRepository.findActivePrimaryByPegawaiId(peg.id());
                     var rolePegawai = rolePegawaiService.findAllByPegawaiId(peg.id());
                     return jabatanPegawai.isPresent() && !rolePegawai.isEmpty();

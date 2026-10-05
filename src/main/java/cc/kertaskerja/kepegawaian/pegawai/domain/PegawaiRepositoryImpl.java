@@ -1,8 +1,10 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -59,4 +61,55 @@ public class PegawaiRepositoryImpl implements PegawaiRepositoryCustom {
                 }
         );
     }
+
+    public List<Pegawai> findDistinctByJabatanPegawaiOpdId(Long opdId) {
+      String script = """
+              SELECT DISTINCT p.*
+              FROM pegawai p
+              JOIN jabatan_pegawai jp
+                ON jp.pegawai_id = p.id
+              WHERE jp.opd_id = ?
+              """;
+
+        return jdbcTemplate.query(script, pegawaiRowMapper, opdId);
+    }
+
+    public List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(Long opdId, String roleNama) {
+        String script = """
+              SELECT DISTINCT p.*
+              FROM pegawai p
+              JOIN jabatan_pegawai jp
+                ON jp.pegawai_id = p.id
+              JOIN role_pegawai rp
+                ON rp.pegawai_id = p.id
+              JOIN role r
+                ON r.id = rp.role_id
+              WHERE jp.opd_id = ?
+              AND r.nama_role = ?
+              """;
+
+        return jdbcTemplate.query(script, pegawaiRowMapper, opdId, roleNama);
+    }
+
+    private final RowMapper<Pegawai> pegawaiRowMapper = (rs, rowNum) ->
+            new Pegawai(
+                    rs.getLong("id"),
+                    rs.getString("nip"),
+                    rs.getString("nama_pegawai"),
+                    rs.getString("jenis_kelamin"),
+                    rs.getString("tempat_lahir"),
+                    rs.getObject("tanggal_lahir", LocalDate.class),
+                    rs.getString("jenis_pegawai"),
+                    rs.getString("status_pegawai") != null
+                            ? PegawaiStatus.valueOf(rs.getString("status_pegawai"))
+                            : null,
+                    rs.getString("keterangan"),
+                    rs.getString("keycloak_user_id"),
+                    rs.getTimestamp("created_date") != null
+                            ? rs.getTimestamp("created_date").toInstant()
+                            : null,
+                    rs.getTimestamp("last_modified_date") != null
+                            ? rs.getTimestamp("last_modified_date").toInstant()
+                            : null
+            );
 }
