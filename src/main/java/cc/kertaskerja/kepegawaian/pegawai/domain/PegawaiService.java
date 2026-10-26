@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
 import cc.kertaskerja.kepegawaian.config.IdentityProperties;
+import cc.kertaskerja.kepegawaian.identity.domain.User;
 import cc.kertaskerja.kepegawaian.identity.domain.CreateUserResult;
 import cc.kertaskerja.kepegawaian.identity.domain.IdentityService;
 import cc.kertaskerja.kepegawaian.integration.simpeg.SimpegClient;
@@ -50,15 +51,14 @@ public class PegawaiService {
     private static final String DEFAULT_NAMA_OPD = "UNKNOWN";
 
     public PegawaiService(PegawaiRepository pegawaiRepository,
-                          OpdRepository opdRepository,
-                          MappingOpdRepository mappingOpdRepository,
-                          SimpegClient simpegClient,
-                          MasterJabatanRepository masterJabatanRepository,
-                          JabatanPegawaiRepository jabatanPegawaiRepository,
-                          IdentityService identityService,
-                          IdentityProperties identityProperties,
-                          RolePegawaiService rolePegawaiService
-    ) {
+            OpdRepository opdRepository,
+            MappingOpdRepository mappingOpdRepository,
+            SimpegClient simpegClient,
+            MasterJabatanRepository masterJabatanRepository,
+            JabatanPegawaiRepository jabatanPegawaiRepository,
+            IdentityService identityService,
+            IdentityProperties identityProperties,
+            RolePegawaiService rolePegawaiService) {
         this.pegawaiRepository = pegawaiRepository;
         this.opdRepository = opdRepository;
         this.mappingOpdRepository = mappingOpdRepository;
@@ -96,13 +96,13 @@ public class PegawaiService {
         return new PegawaiView(pegawai, jabatanPegawai, role);
     }
 
-
     public Pegawai findPegawaiById(Long id) {
         return pegawaiRepository.findById(id)
                 .orElseThrow(() -> new PegawaiNotFoundException(id));
     }
 
-    public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan, Integer tahun) {
+    public PegawaiDetails findHistoriPegawai(Long pegawaiId, PegawaiJenisHistori jenisHistori, Integer bulan,
+            Integer tahun) {
         // guard pegawai
         Pegawai pegawai = findPegawaiById(pegawaiId);
 
@@ -116,8 +116,7 @@ public class PegawaiService {
                 pegawai.nip(),
                 pegawai.namaPegawai(),
                 jabatanPegawais,
-                rolePegawais
-        );
+                rolePegawais);
     }
 
     @Transactional
@@ -149,8 +148,7 @@ public class PegawaiService {
                         updatePegawai.tempatLahir(),
                         updatePegawai.tanggalLahir(),
                         updatePegawai.jenisPegawai(),
-                        updatePegawai.statusPegawai()
-                ));
+                        updatePegawai.statusPegawai()));
     }
 
     @Transactional
@@ -196,8 +194,7 @@ public class PegawaiService {
                         "Failed migrating pegawai id={}, nip={}",
                         identity.pegawai().id(),
                         identity.pegawai().nip(),
-                        ex
-                );
+                        ex);
             }
         }
 
@@ -206,51 +203,41 @@ public class PegawaiService {
                 pegawais.size(),
                 created,
                 linked,
-                failed
-        );
+                failed);
 
         return new MigrationSummary(
                 pegawais.size(),
                 created,
                 linked,
-                failed
-        );
+                failed);
     }
 
     // mapping keycloak attributes from pegawai records
     private List<PegawaiIdentityData> mapToIdentityData(
-            List<Pegawai> pegawais
-    ) {
+            List<Pegawai> pegawais) {
         List<Long> pegawaiIds = pegawais.stream()
                 .map(Pegawai::id)
                 .toList();
 
-        Map<Long, JabatanPegawai> jabatanByPegawaiId =
-                jabatanPegawaiRepository
-                        .findActivePrimaryByPegawaiIdIn(pegawaiIds)
-                        .stream()
-                        .collect(Collectors.toMap(
-                                JabatanPegawai::pegawaiId,
-                                Function.identity()
-                        ));
+        Map<Long, JabatanPegawai> jabatanByPegawaiId = jabatanPegawaiRepository
+                .findActivePrimaryByPegawaiIdIn(pegawaiIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        JabatanPegawai::pegawaiId,
+                        Function.identity()));
 
-        List<AssignRoleResult> assignments =
-                rolePegawaiService.findAllByPegawaiIdIn(pegawaiIds);
+        List<AssignRoleResult> assignments = rolePegawaiService.findAllByPegawaiIdIn(pegawaiIds);
 
-        Map<Long, Set<String>> rolesByPegawaiId =
-                assignments.stream()
-                        .collect(Collectors.groupingBy(
-                                result -> result.assignment().pegawaiId(),
-                                Collectors.mapping(
-                                        result -> result.role().namaRole(),
-                                        Collectors.toSet()
-                                )
-                        ));
+        Map<Long, Set<String>> rolesByPegawaiId = assignments.stream()
+                .collect(Collectors.groupingBy(
+                        result -> result.assignment().pegawaiId(),
+                        Collectors.mapping(
+                                result -> result.role().namaRole(),
+                                Collectors.toSet())));
 
         return pegawais.stream()
                 .map(pegawai -> {
-                    JabatanPegawai jabatan =
-                            jabatanByPegawaiId.get(pegawai.id());
+                    JabatanPegawai jabatan = jabatanByPegawaiId.get(pegawai.id());
 
                     return new PegawaiIdentityData(
                             pegawai,
@@ -262,9 +249,7 @@ public class PegawaiService {
                                     : DEFAULT_NAMA_OPD,
                             rolesByPegawaiId.getOrDefault(
                                     pegawai.id(),
-                                    Set.of()
-                            )
-                    );
+                                    Set.of()));
                 })
                 .toList();
     }
@@ -272,23 +257,20 @@ public class PegawaiService {
     protected MigrationResult migratePegawai(PegawaiIdentityData data) {
         IdentityMapper identityMapper = new IdentityMapper();
         CreateUserResult result = identityService.createUser(
-                identityMapper.toCreateIdentityRequest(data)
-        );
+                identityMapper.toCreateIdentityRequest(data));
 
         if (result.created()) {
             identityService.resetPassword(
                     result.userId(),
                     identityProperties.migration().defaultPassword(),
-                    identityProperties.migration().temporaryPassword()
-            );
+                    identityProperties.migration().temporaryPassword());
         }
 
         log.info("ASSIGN ROLES FOR pegawai={}", data.pegawai().namaPegawai());
 
         identityService.assignRoles(
                 result.userId(),
-                data.roles()
-        );
+                data.roles());
 
         // update pegawai keycloak id
         linkKeycloakUser(data.pegawai(), result.userId());
@@ -301,11 +283,9 @@ public class PegawaiService {
     @Transactional
     protected void linkKeycloakUser(
             Pegawai pegawai,
-            String userId
-    ) {
+            String userId) {
         pegawaiRepository.save(
-                pegawai.withKeycloakUserId(userId)
-        );
+                pegawai.withKeycloakUserId(userId));
     }
 
     @Transactional
@@ -314,9 +294,7 @@ public class PegawaiService {
         // ambil opd dulu
         // Cari OPD sekali saja
         Opd opd = opdRepository.findById(opdId)
-                .orElseThrow(() ->
-                        new OpdNotFoundException(opdId)
-                );
+                .orElseThrow(() -> new OpdNotFoundException(opdId));
         // cari kode opd simpeg dulu
         String sumberMapping = SumberMapping.SIMPEG.name();
 
@@ -326,19 +304,16 @@ public class PegawaiService {
         Optional<MappingOpd> mappingOpd = mappingOpdRepository
                 .findBySumberAndKodeMaster(
                         sumberMapping,
-                        opd.kodeOpd()
-                );
+                        opd.kodeOpd());
 
         if (mappingOpd.isEmpty()) {
             return;
         }
         // ambil dari simpeg
         // pakai kode opd simpeg untuk sync
-        List<SimpegPegawaiResponse> responses =
-                simpegClient.findPegawaiByKodeOpd(mappingOpd.get().kodeSumber());
+        List<SimpegPegawaiResponse> responses = simpegClient.findPegawaiByKodeOpd(mappingOpd.get().kodeSumber());
 
-        SimpegPegawaiMapper mapper =
-                new SimpegPegawaiMapper();
+        SimpegPegawaiMapper mapper = new SimpegPegawaiMapper();
 
         // jabatan pegawai
         List<SimpegJabatanPegawai> jabatanPegawais = responses.stream()
@@ -350,8 +325,7 @@ public class PegawaiService {
                 .collect(Collectors.toMap(
                         Pegawai::nip,
                         Function.identity(),
-                        (existing, duplicate) -> existing
-                ))
+                        (existing, duplicate) -> existing))
                 .values()
                 .stream()
                 .toList();
@@ -360,33 +334,27 @@ public class PegawaiService {
         pegawaiRepository.upsertAll(pegawais);
 
         // cari pegawai id dari tersimpan
-        Map<String, Long> pegawaiIds =
-                pegawaiRepository
-                        .findByNipIn(
-                                pegawais
-                                        .stream()
-                                        .map(Pegawai::nip).toList()
-                        )
-                        .stream()
-                        .collect(Collectors.toMap(
-                                Pegawai::nip,
-                                Pegawai::id
-                        ));
+        Map<String, Long> pegawaiIds = pegawaiRepository
+                .findByNipIn(
+                        pegawais
+                                .stream()
+                                .map(Pegawai::nip).toList())
+                .stream()
+                .collect(Collectors.toMap(
+                        Pegawai::nip,
+                        Pegawai::id));
 
         // jabatan pegawai dari master jabatan
-        Map<String, Long> jabatanIds =
-                masterJabatanRepository
-                        .findByKodeJabatanIn(
-                                jabatanPegawais
-                                        .stream()
-                                        .map(SimpegJabatanPegawai::kodeJabatan)
-                                        .toList()
-                        )
-                        .stream()
-                        .collect(Collectors.toMap(
-                                MasterJabatan::kodeJabatan,
-                                MasterJabatan::id
-                        ));
+        Map<String, Long> jabatanIds = masterJabatanRepository
+                .findByKodeJabatanIn(
+                        jabatanPegawais
+                                .stream()
+                                .map(SimpegJabatanPegawai::kodeJabatan)
+                                .toList())
+                .stream()
+                .collect(Collectors.toMap(
+                        MasterJabatan::kodeJabatan,
+                        MasterJabatan::id));
 
         List<JabatanPegawai> listJabatanPegawais = jabatanPegawais.stream()
                 .flatMap(jabatan -> {
@@ -404,12 +372,15 @@ public class PegawaiService {
                             opdId,
                             opd.kodeOpd(),
                             opd.namaOpd(),
-                            jabatan.mulaiJabatan()
-                    ));
+                            jabatan.mulaiJabatan()));
                 })
                 .toList();
 
         // simpan jabatan pegawai
         jabatanPegawaiRepository.saveAll(listJabatanPegawais);
+    }
+
+    public List<User> findAllWithUserId() {
+        return identityService.getUsers();
     }
 }

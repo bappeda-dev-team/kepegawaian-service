@@ -15,4 +15,6 @@ public interface IdentityService {
     void resetPassword(String userId, String password, boolean temporary);
 
     void assignRoles(String userId, Set<String> roles);
+
+    List<User> getUsers();
 }

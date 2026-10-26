@@ -21,6 +21,15 @@ public interface PegawaiRepository extends CrudRepository<Pegawai, Long>, Pegawa
         """)
     List<Pegawai> findWithoutKeycloakUserId();
 
+    @Query("""
+        SELECT *
+        FROM pegawai
+        WHERE keycloak_user_id IS NOT NULL
+           OR keycloak_user_id != ''
+        ORDER BY id
+        """)
+    List<Pegawai> findWithKeycloakUserId();
+
     @Modifying
     @Query("""
         UPDATE pegawai

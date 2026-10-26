@@ -1,7 +1,9 @@
 package cc.kertaskerja.kepegawaian.identity.domain;
 
+import org.keycloak.representations.idm.UserRepresentation;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 
 public interface KeycloakAdminClient {
@@ -33,4 +35,6 @@ public interface KeycloakAdminClient {
     );
 
     Set<String> findRoles(String userId);
+
+    List<UserRepresentation> findUsers();
 }

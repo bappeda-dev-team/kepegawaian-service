@@ -1,6 +1,7 @@
 package cc.kertaskerja.kepegawaian.identity.domain;
 
 import jakarta.validation.Valid;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Set;
 @Service
 public class KeycloakIdentityService implements IdentityService {
     private final KeycloakAdminClient keycloakAdminClient;
-
 
     public KeycloakIdentityService(KeycloakAdminClient keycloakAdminClient) {
         this.keycloakAdminClient = keycloakAdminClient;
@@ -23,8 +23,7 @@ public class KeycloakIdentityService implements IdentityService {
     @Override
     public void updateUser(
             String userId,
-            @Valid UpdateIdentityRequest request
-    ) {
+            @Valid UpdateIdentityRequest request) {
         keycloakAdminClient.updateUser(userId, request);
     }
 
@@ -42,23 +41,52 @@ public class KeycloakIdentityService implements IdentityService {
     public void resetPassword(
             String userId,
             String password,
-            boolean temporary
-    ) {
+            boolean temporary) {
         keycloakAdminClient.resetPassword(
                 userId,
                 password,
-                temporary
-        );
+                temporary);
     }
 
     @Override
     public void assignRoles(
             String userId,
-            Set<String> roles
-    ) {
+            Set<String> roles) {
         keycloakAdminClient.assignRoles(
                 userId,
-                roles
-        );
+                roles);
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return keycloakAdminClient.findUsers()
+                .stream()
+                .map(this::toUser)
+                .toList();
+    }
+
+    private User toUser(UserRepresentation representation) {
+        return new User(
+                representation.getUsername(),
+                representation.getEmail(),
+                keycloakAdminClient.findRoles(
+                        representation.getId()),
+                getAttribute(representation, "kode_opd"),
+                getAttribute(representation, "nama_opd"),
+                Boolean.TRUE.equals(representation.isEnabled()));
+    }
+
+    private String getAttribute(
+            UserRepresentation user,
+            String name) {
+        if (user.getAttributes() == null) {
+            return null;
+        }
+
+        var values = user.getAttributes().get(name);
+
+        return values == null || values.isEmpty()
+                ? null
+                : values.getFirst();
     }
 }

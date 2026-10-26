@@ -27,7 +27,6 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     private final UserRepresentationMapper mapper;
     private final Logger log = LoggerFactory.getLogger(KeycloakAdminClientImpl.class);
 
-
     public KeycloakAdminClientImpl(Keycloak keycloak, IdentityProperties properties, UserRepresentationMapper mapper) {
         this.keycloak = keycloak;
         this.properties = properties;
@@ -71,13 +70,12 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
             return new CreateUserResult(userId, false);
         }
 
-        try(Response response = realm().users().create(user)) {
+        try (Response response = realm().users().create(user)) {
             if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                 throw new IdentityException(
-                        "Unable to create user. Status = " + response.getStatus()
-                );
+                        "Unable to create user. Status = " + response.getStatus());
             }
-            String newUserId =  CreatedResponseUtil.getCreatedId(response);
+            String newUserId = CreatedResponseUtil.getCreatedId(response);
 
             return new CreateUserResult(newUserId, false);
         }
@@ -122,11 +120,9 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     public void resetPassword(
             String userId,
             String password,
-            boolean temporary
-    ) {
+            boolean temporary) {
 
-        CredentialRepresentation credential =
-                new CredentialRepresentation();
+        CredentialRepresentation credential = new CredentialRepresentation();
 
         credential.setType(CredentialRepresentation.PASSWORD);
 
@@ -140,21 +136,18 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     @Override
     public void assignRoles(
             String userId,
-            Collection<String> roleNames
-    ) {
+            Collection<String> roleNames) {
         log.info(
                 "Assigning roles. userId={}, roles={}",
                 userId,
-                roleNames
-        );
+                roleNames);
 
-        List<RoleRepresentation> roles =
-                roleNames.stream()
-                        .map(name -> realm()
-                                .roles()
-                                .get(name)
-                                .toRepresentation())
-                        .toList();
+        List<RoleRepresentation> roles = roleNames.stream()
+                .map(name -> realm()
+                        .roles()
+                        .get(name)
+                        .toRepresentation())
+                .toList();
 
         realm()
                 .users()
@@ -166,20 +159,17 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
         log.info(
                 "Roles assigned. userId={}, roles={}",
                 userId,
-                roleNames
-        );
+                roleNames);
     }
 
     @Override
     public void removeRoles(
             String userId,
-            Collection<String> roleNames
-    ) {
+            Collection<String> roleNames) {
 
-        List<RoleRepresentation> roles =
-                roleNames.stream()
-                        .map(name -> realm().roles().get(name).toRepresentation())
-                        .toList();
+        List<RoleRepresentation> roles = roleNames.stream()
+                .map(name -> realm().roles().get(name).toRepresentation())
+                .toList();
 
         realm()
                 .users()
@@ -204,5 +194,10 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
 
     private UserResource user(String userId) {
         return realm().users().get(userId);
+    }
+
+    @Override
+    public List<UserRepresentation> findUsers() {
+        return realm().users().list();
     }
 }
