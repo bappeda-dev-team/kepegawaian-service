@@ -71,9 +71,6 @@ public class PegawaiService {
     }
 
     public List<Pegawai> findAll(Long opdId, String roleUser) {
-        if (opdId == null) {
-            return pegawaiRepository.findAll();
-        }
         if (roleUser == null || roleUser.isBlank()) {
             return pegawaiRepository.findDistinctByJabatanPegawaiOpdId(opdId);
         }

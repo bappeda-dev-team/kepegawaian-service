@@ -52,9 +52,6 @@ public class MasterJabatanService {
     }
 
     public List<MasterJabatan> findAllByOpdId(Long opdId) {
-        if (opdId == null) {
-            return masterJabatanRepository.findAll();
-        }
         return masterJabatanRepository.findAllByOpdIdAndStatusJabatanOrderByNamaJabatan(opdId, MasterJabatanStatus.AKTIF);
     }
 

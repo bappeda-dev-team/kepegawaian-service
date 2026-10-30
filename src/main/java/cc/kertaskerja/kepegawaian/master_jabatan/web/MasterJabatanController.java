@@ -37,7 +37,7 @@ public class MasterJabatanController {
             description = "Mengambil seluruh data master jabatan"
     )
     public WebResponse<List<MasterJabatanResponse>> findAll(
-            @RequestParam(name = "opdId") Long opdId
+        @Parameter(description = "Opd Id", example = "1", required = true) @RequestParam(name = "opdId") Long opdId
     ) {
         List<MasterJabatanResponse> responses = masterJabatanService.findAllByOpdId(opdId)
                 .stream()
