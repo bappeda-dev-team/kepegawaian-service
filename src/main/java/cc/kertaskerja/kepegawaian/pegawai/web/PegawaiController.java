@@ -37,7 +37,7 @@ public class PegawaiController {
             @ApiResponse(responseCode = "401", description = "Token tidak valid"),
     })
     public WebResponse<List<PegawaiResponse>> findAll(
-            @Parameter(description = "Opd Id", example = "1", required = true) @RequestParam Long opdId,
+            @Parameter(description = "Opd Id", example = "1", required = false) @RequestParam Long opdId,
             @Parameter(description = "Role", example = "level_1") @RequestParam(required = false) String role) {
         List<PegawaiResponse> responses = pegawaiService.findAll(opdId, role)
                 .stream()
