@@ -2,6 +2,7 @@ package cc.kertaskerja.kepegawaian.role.domain;
 
 import java.time.Instant;
 
+import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -16,30 +17,46 @@ public record Role(
 
         @Column("nama_role") String namaRole,
 
+        @Column("is_admin") Boolean isAdmin,
+
         @CreatedDate Instant createdDate,
 
         @LastModifiedDate Instant lastModifiedDate
 
-) {
+) implements Optionable {
     public static Role of(
             String kodeRole,
-            String namaRole) {
+            String namaRole,
+            Boolean isAdmin) {
         return new Role(
                 null,
                 kodeRole,
                 namaRole,
+                isAdmin,
                 null,
                 null);
     }
 
     public Role update(
             String kodeRole,
-            String namaRole) {
+            String namaRole,
+            Boolean isAdmin) {
         return new Role(
                 id,
                 kodeRole,
                 namaRole,
+                isAdmin,
                 createdDate,
                 null);
+    }
+
+    @Override
+    public String optionLabel() {
+        return namaRole.replace("_", " ").toUpperCase();
+    }
+
+    @Override
+    public String optionValue() {
+        return id.toString();
     }
 }

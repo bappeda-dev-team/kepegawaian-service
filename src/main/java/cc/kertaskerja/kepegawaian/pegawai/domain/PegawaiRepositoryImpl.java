@@ -76,6 +76,21 @@ public class PegawaiRepositoryImpl implements PegawaiRepositoryCustom {
         return jdbcTemplate.query(script, pegawaiRowMapper, opdId);
     }
 
+    public List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRoleId(Long opdId, Long roleId) {
+        String script = """
+                SELECT DISTINCT p.*
+                FROM pegawai p
+                JOIN jabatan_pegawai jp
+                  ON jp.pegawai_id = p.id
+                JOIN role_pegawai rp
+                  ON rp.pegawai_id = p.id
+                WHERE jp.opd_id = ?
+                AND rp.role_id = ?
+                """;
+
+        return jdbcTemplate.query(script, pegawaiRowMapper, opdId, roleId);
+    }
+
     public List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(Long opdId, String roleNama) {
         String script = """
                 SELECT DISTINCT p.*

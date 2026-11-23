@@ -48,8 +48,8 @@ public class PegawaiController {
     })
     public WebResponse<List<PegawaiResponse>> findAll(
             @Parameter(description = "Opd Id", example = "1", required = true) @RequestParam Long opdId,
-            @Parameter(description = "Role", example = "level_1") @RequestParam(required = false) String role) {
-        List<PegawaiResponse> responses = pegawaiService.findAll(opdId, role)
+            @Parameter(description = "Role Id", example = "6") @RequestParam(required = false) Long roleId) {
+        List<PegawaiResponse> responses = pegawaiService.findAll(opdId, roleId)
                 .stream()
                 .map(PegawaiResponse::from)
                 .toList();

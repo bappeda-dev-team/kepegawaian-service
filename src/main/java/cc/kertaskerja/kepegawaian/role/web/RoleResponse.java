@@ -5,13 +5,15 @@ import cc.kertaskerja.kepegawaian.role.domain.Role;
 public record RoleResponse(
     Long id,
     String kodeRole,
-    String namaRole
+    String namaRole,
+    Boolean isAdmin
 ) {
     public static RoleResponse from(Role role) {
         return new RoleResponse(
             role.id(),
             role.kodeRole(),
-            role.namaRole()
+            role.namaRole(),
+            role.isAdmin()
         );
     }
 }

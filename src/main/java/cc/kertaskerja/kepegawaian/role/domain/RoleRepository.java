@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public interface RoleRepository extends CrudRepository<Role, Long> {
     Optional<Role> findByKodeRole(String kodeRole);
+
     List<Role> findByIdIn(List<Long> roleIds);
+
     boolean existsByKodeRole(String kodeRole);
+
+    List<Role> findByIsAdminFalse();
 }

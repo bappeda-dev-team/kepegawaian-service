@@ -72,11 +72,11 @@ public class PegawaiService {
         this.rolePegawaiService = rolePegawaiService;
     }
 
-    public List<Pegawai> findAll(Long opdId, String roleUser) {
-        if (roleUser == null || roleUser.isBlank()) {
+    public List<Pegawai> findAll(Long opdId, Long roleId) {
+        if (roleId == null) {
             return pegawaiRepository.findDistinctByJabatanPegawaiOpdId(opdId);
         }
-        return pegawaiRepository.findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(opdId, roleUser);
+        return pegawaiRepository.findDistinctByJabatanPegawaiOpdIdAndRoleId(opdId, roleId);
     }
 
     public Page<Pegawai> allPegawai(Pageable pageable) {
@@ -169,7 +169,7 @@ public class PegawaiService {
         // filter hanya yang lengkap yang kita migrasi ke keycloak
         // opd / jabatan
         // role
-        List<Pegawai> pegawais = findAll(opdId, "")
+        List<Pegawai> pegawais = findAll(opdId, null)
                 .stream()
                 .filter(peg -> {
                     // ONLY MIGRATE YANG PUNYA JABATAN DAN ROLE

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.List;
 
+import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import cc.kertaskerja.kepegawaian.role.domain.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,6 +52,24 @@ public class RoleController {
             .toList();
 
         return WebResponse.success(responses);
+    }
+
+    @GetMapping("/options")
+    @Operation(summary = "Daftar Role untuk dropdown", description = "Simplifikasi Data Role untuk dropdown")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar Role berhasil diambil"),
+    })
+    public WebResponse<List<OptionResponse>> dropdownAll() {
+        List<OptionResponse> responses = roleService.findNonAdminRole()
+                .stream()
+                .map(OptionResponse::of)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "Dropdown opd",
+                responses);
     }
 
     @GetMapping("/{id}")

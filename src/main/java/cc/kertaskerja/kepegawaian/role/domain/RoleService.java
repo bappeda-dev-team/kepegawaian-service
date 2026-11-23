@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RoleService {
     private final RoleRepository roleRepository;
-    //private final Logger log = LoggerFactory.getLogger(PegawaiService.class);
+    // private final Logger log = LoggerFactory.getLogger(PegawaiService.class);
 
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
@@ -20,9 +20,13 @@ public class RoleService {
         return Streamable.of(roleRepository.findAll()).toList();
     }
 
+    public List<Role> findNonAdminRole() {
+        return roleRepository.findByIsAdminFalse();
+    }
+
     public Role findRoleById(Long id) {
         return roleRepository.findById(id)
-            .orElseThrow(() -> new RoleNotFoundException(id));
+                .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
     @Transactional
@@ -40,16 +44,16 @@ public class RoleService {
         Role existingRole = findRoleById(id);
 
         roleRepository.findByKodeRole(updateRole.kodeRole())
-            .filter(r -> !r.id().equals(id))
-            .ifPresent(role -> {
-            throw new RoleNotFoundException(updateRole.kodeRole());
-        });
+                .filter(r -> !r.id().equals(id))
+                .ifPresent(role -> {
+                    throw new RoleNotFoundException(updateRole.kodeRole());
+                });
 
         return roleRepository.save(
-            existingRole.update(
-                updateRole.kodeRole(),
-                updateRole.namaRole()
-        ));
+                existingRole.update(
+                        updateRole.kodeRole(),
+                        updateRole.namaRole(),
+                        updateRole.isAdmin()));
     }
 
     @Transactional
@@ -58,7 +62,6 @@ public class RoleService {
         roleRepository.deleteById(id);
         return role.namaRole();
     }
-
 
     private String kodeRoleMaker(String namaRole) {
         return "ROLE-" + namaRole;
