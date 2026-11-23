@@ -77,7 +77,7 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
             }
             String newUserId = CreatedResponseUtil.getCreatedId(response);
 
-            return new CreateUserResult(newUserId, false);
+            return new CreateUserResult(newUserId, true);
         }
     }
 
