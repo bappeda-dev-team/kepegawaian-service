@@ -47,7 +47,7 @@ class OpdControllerTest {
         when(opdService.allOpd(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(opd), pageable, 1));
 
-        mockMvc.perform(get("/opd/all")
+        mockMvc.perform(get("/opd")
                 .param("page", "0")
                 .param("size", "20"))
                 .andExpect(status().isOk())
