@@ -41,7 +41,7 @@ public class OpdController {
         this.opdService = opdService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     @Operation(summary = "Daftar OPD aktif", description = "Mengambil seluruh OPD aktif berdasarkan kode lembaga yang dikonfigurasi.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Daftar OPD berhasil diambil"),
@@ -52,6 +52,24 @@ public class OpdController {
                 .map(OpdResponse::from);
 
         return WebResponse.success(PageResponse.from(responses));
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Daftar OPD aktif", description = "Mengambil seluruh OPD aktif berdasarkan kode lembaga yang dikonfigurasi.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar OPD berhasil diambil")
+    })
+    public WebResponse<List<OpdResponse>> findAll() {
+        List<OpdResponse> responses = opdService.findAllOpdAktifInLembaga()
+                .stream()
+                .map(OpdResponse::from)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "List OPD",
+                responses);
     }
 
     @GetMapping("/options")
