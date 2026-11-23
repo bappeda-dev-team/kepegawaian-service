@@ -10,8 +10,14 @@ public interface PegawaiRepositoryCustom {
 
     List<Pegawai> findDistinctByJabatanPegawaiOpdId(Long opdId);
 
+    List<Pegawai> findDistinctByJabatanPegawaiKodeOpd(String kodeOpd);
+
     List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRoleId(
             Long opdId,
+            Long roleId);
+
+    List<Pegawai> findDistinctByJabatanPegawaiKodeOpdAndRoleId(
+            String kodeOpd,
             Long roleId);
 
     List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(

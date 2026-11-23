@@ -76,6 +76,18 @@ public class PegawaiRepositoryImpl implements PegawaiRepositoryCustom {
         return jdbcTemplate.query(script, pegawaiRowMapper, opdId);
     }
 
+    public List<Pegawai> findDistinctByJabatanPegawaiKodeOpd(String kodeOpd) {
+        String script = """
+                SELECT DISTINCT p.*
+                FROM pegawai p
+                JOIN jabatan_pegawai jp
+                  ON jp.pegawai_id = p.id
+                WHERE jp.kode_opd = ?
+                """;
+
+        return jdbcTemplate.query(script, pegawaiRowMapper, kodeOpd);
+    }
+
     public List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRoleId(Long opdId, Long roleId) {
         String script = """
                 SELECT DISTINCT p.*
@@ -89,6 +101,21 @@ public class PegawaiRepositoryImpl implements PegawaiRepositoryCustom {
                 """;
 
         return jdbcTemplate.query(script, pegawaiRowMapper, opdId, roleId);
+    }
+
+    public List<Pegawai> findDistinctByJabatanPegawaiKodeOpdAndRoleId(String kodeOpd, Long roleId) {
+        String script = """
+                SELECT DISTINCT p.*
+                FROM pegawai p
+                JOIN jabatan_pegawai jp
+                  ON jp.pegawai_id = p.id
+                JOIN role_pegawai rp
+                  ON rp.pegawai_id = p.id
+                WHERE jp.kode_opd = ?
+                AND rp.role_id = ?
+                """;
+
+        return jdbcTemplate.query(script, pegawaiRowMapper, kodeOpd, roleId);
     }
 
     public List<Pegawai> findDistinctByJabatanPegawaiOpdIdAndRolePegawaiRoleNama(Long opdId, String roleNama) {

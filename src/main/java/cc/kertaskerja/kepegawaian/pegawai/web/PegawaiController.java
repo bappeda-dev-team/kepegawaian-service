@@ -47,9 +47,9 @@ public class PegawaiController {
             @ApiResponse(responseCode = "400", description = "Bad Request, filter tidak valid"),
     })
     public WebResponse<List<PegawaiResponse>> findAll(
-            @Parameter(description = "Opd Id", example = "1", required = true) @RequestParam Long opdId,
+            @Parameter(description = "Kode Opd", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd,
             @Parameter(description = "Role Id", example = "6") @RequestParam(required = false) Long roleId) {
-        List<PegawaiResponse> responses = pegawaiService.findAll(opdId, roleId)
+        List<PegawaiResponse> responses = pegawaiService.findAll(kodeOpd, roleId)
                 .stream()
                 .map(PegawaiResponse::from)
                 .toList();

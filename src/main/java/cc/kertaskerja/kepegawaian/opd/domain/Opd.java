@@ -72,6 +72,6 @@ public record Opd(
 
     @Override
     public String optionValue() {
-        return id.toString();
+        return kodeOpd;
     }
 }
