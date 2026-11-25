@@ -45,6 +45,17 @@ public class MasterJabatanService {
         return masterJabatanRepository.findAll(pageable);
     }
 
+    public Page<MasterJabatan> allJabatanOpd(Pageable pageable, String kodeOpd, String statusJabatan) {
+        MasterJabatanStatus status = statusJabatan == null || statusJabatan.isBlank()
+                ? MasterJabatanStatus.AKTIF
+                : MasterJabatanStatus.valueOf(statusJabatan);
+
+        return masterJabatanRepository.findAllByKodeOpdAndStatusJabatan(
+                pageable,
+                kodeOpd,
+                status);
+    }
+
     public List<MasterJabatanJenjang> listJenjangJabatan() {
         return List.of(MasterJabatanJenjang.values());
     }
@@ -59,6 +70,11 @@ public class MasterJabatanService {
 
     public List<MasterJabatan> findAllByOpdId(Long opdId) {
         return masterJabatanRepository.findAllByOpdIdAndStatusJabatanOrderByNamaJabatan(opdId,
+                MasterJabatanStatus.AKTIF);
+    }
+
+    public List<MasterJabatan> findAllByKodeOpd(String kodeOpd) {
+        return masterJabatanRepository.findAllByKodeOpdAndStatusJabatanOrderByNamaJabatan(kodeOpd,
                 MasterJabatanStatus.AKTIF);
     }
 

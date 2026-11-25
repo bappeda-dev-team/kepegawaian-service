@@ -90,6 +90,26 @@ public class OpdController {
                 responses);
     }
 
+    @GetMapping("/options-id")
+    @Operation(summary = "Daftar OPD untuk dropdown", description = "Dropdown daftar opd tapi valuenya opd id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar OPD berhasil diambil"),
+    })
+    public WebResponse<List<OptionResponse>> dropdownAllId() {
+        List<OptionResponse> responses = opdService.findAllOpdAktifInLembaga()
+                .stream()
+                .map(opd -> OptionResponse.of(
+                        opd,
+                        item -> String.valueOf(item.id().toString())))
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "Dropdown opd",
+                responses);
+    }
+
     @GetMapping("/show/{id}")
     @Operation(summary = "Detail OPD", description = "Mengambil detail OPD berdasarkan id OPD.")
     @ApiResponses({

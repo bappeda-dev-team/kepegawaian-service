@@ -44,25 +44,29 @@ public class MasterJabatanController {
     }
 
     @GetMapping
-    @Operation(summary = "Daftar seluruh jabatan by filter", description = "Mengambil seluruh data master jabatan by opd id")
+    @Operation(summary = "Daftar seluruh jabatan", description = "Mengambil seluruh data master jabatan")
+    public WebResponse<PageResponse<MasterJabatanResponse>> allMasterJabatans(
+            @ParameterObject @PageableDefault(size = 20, sort = "namaJabatan", direction = Sort.Direction.ASC) Pageable pageable,
+            @Parameter(description = "Kode OPD", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd,
+            @Parameter(description = "Status", example = "AKTIF") @RequestParam(required = false) String statusJabatan) {
+        Page<MasterJabatanResponse> responses = masterJabatanService.allJabatanOpd(
+                pageable,
+                kodeOpd,
+                statusJabatan).map(MasterJabatanResponse::from);
+
+        return WebResponse.success(PageResponse.from(responses));
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Daftar seluruh jabatan aktif", description = "Mengambil seluruh data master jabatan yang aktif by kode opd")
     public WebResponse<List<MasterJabatanResponse>> findAll(
-            @Parameter(description = "Opd Id", example = "1", required = true) @RequestParam(name = "opdId") Long opdId) {
-        List<MasterJabatanResponse> responses = masterJabatanService.findAllByOpdId(opdId)
+            @Parameter(description = "Kode OPD", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd) {
+        List<MasterJabatanResponse> responses = masterJabatanService.findAllByKodeOpd(kodeOpd)
                 .stream()
                 .map(MasterJabatanResponse::from)
                 .toList();
 
         return WebResponse.success(responses);
-    }
-
-    @GetMapping("/all")
-    @Operation(summary = "Daftar seluruh jabatan", description = "Mengambil seluruh data master jabatan")
-    public WebResponse<PageResponse<MasterJabatanResponse>> allMasterJabatans(
-            @ParameterObject @PageableDefault(size = 20, sort = "namaJabatan", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<MasterJabatanResponse> responses = masterJabatanService.allJabatan(pageable)
-                .map(MasterJabatanResponse::from);
-
-        return WebResponse.success(PageResponse.from(responses));
     }
 
     @GetMapping("/{id}")
@@ -156,8 +160,8 @@ public class MasterJabatanController {
     @GetMapping("/options")
     @Operation(summary = "Daftar Master Jabatan untuk dropdown", description = "Simplifikasi Data Master Jabatan untuk dropdown")
     public WebResponse<List<OptionResponse>> dropdownAll(
-            @RequestParam(required = false) Long opdId) {
-        List<OptionResponse> responses = masterJabatanService.findAllByOpdId(opdId)
+            @Parameter(description = "Kode OPD", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd) {
+        List<OptionResponse> responses = masterJabatanService.findAllByKodeOpd(kodeOpd)
                 .stream()
                 .map(OptionResponse::of)
                 .toList();

@@ -44,6 +44,44 @@ public class MasterJabatanRepositoryCustomImpl implements MasterJabatanRepositor
                 total != null ? total : 0);
     }
 
+    @Override
+    public Page<MasterJabatan> findAllByKodeOpdAndStatusJabatan(Pageable pageable, String kodeOpd,
+            MasterJabatanStatus statusJabatan) {
+
+        String sql = """
+                SELECT m.*
+                FROM master_jabatan m
+                JOIN opd o ON o.id = m.opd_id
+                WHERE o.kode_opd = ? AND m.status_jabatan = ?
+                ORDER BY m.nama_jabatan ASC
+                LIMIT ? OFFSET ?
+                """;
+
+        String countSql = """
+                SELECT COUNT(*)
+                FROM master_jabatan m
+                JOIN opd o ON o.id = m.opd_id
+                WHERE o.kode_opd = ? AND m.status_jabatan = ?
+                """;
+
+        List<MasterJabatan> masterJabatan = jdbcTemplate.query(
+                sql,
+                masterJabatanPaginationRowMapper,
+                kodeOpd,
+                statusJabatan.name(),
+                pageable.getPageSize(),
+                pageable.getOffset());
+
+        Long total = jdbcTemplate.queryForObject(
+                countSql,
+                Long.class, kodeOpd, statusJabatan.name());
+
+        return new PageImpl<>(
+                masterJabatan,
+                pageable,
+                total != null ? total : 0);
+    }
+
     private final RowMapper<MasterJabatan> masterJabatanPaginationRowMapper = (rs, rowNum) -> new MasterJabatan(
             rs.getLong("id"),
             rs.getLong("opd_id"),
