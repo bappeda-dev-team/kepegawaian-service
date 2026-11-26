@@ -11,73 +11,98 @@ import java.time.Instant;
 
 @Table("master_jabatan")
 public record MasterJabatan(
-        @Id
-        Long id,
+        @Id Long id,
 
-        @Column("opd_id")
-        Long opdId,
+        @Column("opd_id") Long opdId,
 
-        @Column("kode_jabatan")
-        String kodeJabatan,
+        @Column("kode_jabatan") String kodeJabatan,
 
-        @Column("nama_jabatan")
-        String namaJabatan,
+        @Column("nama_jabatan") String namaJabatan,
 
-        @Column("jenjang_jabatan")
-        MasterJabatanJenjang jenjangJabatan,
+        @Column("jenjang_jabatan") MasterJabatanJenjang jenjangJabatan,
 
-        @Column("status_jabatan")
-        MasterJabatanStatus statusJabatan,
+        @Column("status_jabatan") MasterJabatanStatus statusJabatan,
 
-        @CreatedDate
-        Instant createdDate,
+        @CreatedDate Instant createdDate,
 
-        @LastModifiedDate
-        Instant lastModifiedDate
-) implements Optionable {
+        @LastModifiedDate Instant lastModifiedDate) implements Optionable {
 
-        public static MasterJabatan of(
+    public static MasterJabatan of(
             Long opdId,
             String kodeJabatan,
             String namaJabatan,
             MasterJabatanJenjang jenjangJabatan,
             MasterJabatanStatus statusJabatan) {
-                return new MasterJabatan(
-                        null,
-                        opdId,
-                        kodeJabatan,
-                        namaJabatan,
-                        jenjangJabatan,
-                        statusJabatan,
-                        null,
-                        null);
-        }
+        return new MasterJabatan(
+                null,
+                opdId,
+                kodeJabatan,
+                namaJabatan,
+                jenjangJabatan,
+                statusJabatan,
+                null,
+                null);
+    }
 
-        public MasterJabatan update(
-                Long opdId,
-                String namaJabatan,
-                MasterJabatanJenjang jenjangJabatan,
-                String kodeJabatan
-        ) {
-                return new MasterJabatan(
-                        id,
-                        opdId,
-                        kodeJabatan,
-                        namaJabatan,
-                        jenjangJabatan,
-                        statusJabatan,
-                        createdDate,
-                        null
-                );
-        }
+    public MasterJabatan update(
+            Long opdId,
+            String namaJabatan,
+            MasterJabatanJenjang jenjangJabatan,
+            String kodeJabatan) {
+        return new MasterJabatan(
+                id,
+                opdId,
+                kodeJabatan,
+                namaJabatan,
+                jenjangJabatan,
+                statusJabatan,
+                createdDate,
+                null);
+    }
 
-        @Override
-        public String optionLabel() {
-                return namaJabatan;
-        }
+    @Override
+    public String optionLabel() {
+        return namaJabatan;
+    }
 
-        @Override
-        public String optionValue() {
-                return id.toString();
+    @Override
+    public String optionValue() {
+        return id.toString();
+    }
+
+    // COMMAND
+    public record CreateCommand(
+            String kodeOpd,
+            String namaJabatan,
+            MasterJabatanJenjang jenjangJabatan) {
+        public MasterJabatan toDomain(Long opdId) {
+            return MasterJabatan.of(
+                    opdId,
+                    null,
+                    namaJabatan,
+                    jenjangJabatan,
+                    MasterJabatanStatus.AKTIF);
         }
+    }
+
+    public static MasterJabatan from(CreateCommand command, Long opdId) {
+        return of(
+                opdId,
+                null,
+                command.namaJabatan(),
+                command.jenjangJabatan(),
+                MasterJabatanStatus.AKTIF);
+    }
+
+    public MasterJabatan withKodeJabatan(String kodeJabatan) {
+        return new MasterJabatan(
+                id,
+                opdId,
+                kodeJabatan,
+                namaJabatan,
+                jenjangJabatan,
+                statusJabatan,
+                createdDate,
+                lastModifiedDate);
+    }
 }

@@ -3,6 +3,7 @@ package cc.kertaskerja.kepegawaian.jabatan_pegawai.domain;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -10,29 +11,31 @@ import java.time.LocalDate;
 
 @Table("jabatan_pegawai")
 public record JabatanPegawai(
-        @Id
-        Long id,
-        Long pegawaiId,
+        @Id Long id,
 
-        Long masterJabatanId,
-        String namaJabatan,
+        @Column("pegawai_id") Long pegawaiId,
 
-        Long opdId,
-        String kodeOpd,
-        String namaOpd,
+        @Column("master_jabatan_id") Long masterJabatanId,
 
-        JabatanPegawaiJenisPenugasan jenisPenugasan,
-        JabatanPegawaiAlasanBerakhir alasanBerakhir,
+        @Column("nama_jabatan") String namaJabatan,
 
-        LocalDate tmtMulai,
-        LocalDate tmtAkhir,
+        @Column("opd_id") Long opdId,
 
-        @CreatedDate
-        Instant createdDate,
+        @Column("kode_opd") String kodeOpd,
 
-        @LastModifiedDate
-        Instant lastModifiedDate
-) {
+        @Column("nama_opd") String namaOpd,
+
+        @Column("jenis_penugasan") JabatanPegawaiJenisPenugasan jenisPenugasan,
+
+        @Column("alasan_berakhir") JabatanPegawaiAlasanBerakhir alasanBerakhir,
+
+        @Column("tmt_mulai") LocalDate tmtMulai,
+
+        @Column("tmt_akhir") LocalDate tmtAkhir,
+
+        @CreatedDate Instant createdDate,
+
+        @LastModifiedDate Instant lastModifiedDate) {
     // validasi
     public JabatanPegawai {
 
@@ -42,20 +45,17 @@ public record JabatanPegawai(
 
         if (tmtAkhir != null && tmtAkhir.isBefore(tmtMulai)) {
             throw new JabatanPegawaiValidationException(
-                    "TMT akhir tidak boleh sebelum TMT mulai"
-            );
+                    "TMT akhir tidak boleh sebelum TMT mulai");
         }
 
         if (tmtAkhir == null && alasanBerakhir != null) {
             throw new JabatanPegawaiValidationException(
-                    "Jabatan aktif tidak boleh memiliki alasan berakhir"
-            );
+                    "Jabatan aktif tidak boleh memiliki alasan berakhir");
         }
 
         if (tmtAkhir != null && alasanBerakhir == null) {
             throw new JabatanPegawaiValidationException(
-                    "Jabatan non aktif harus memiliki alasan berakhir"
-            );
+                    "Jabatan non aktif harus memiliki alasan berakhir");
         }
     }
 
@@ -64,7 +64,7 @@ public record JabatanPegawai(
     }
 
     public boolean isAktifAndUtama() {
-        return tmtAkhir == null && jenisPenugasan.isUtama();
+        return isAktif() && isUtama();
     }
 
     public boolean isNonAktif() {
@@ -91,8 +91,7 @@ public record JabatanPegawai(
             Long opdId,
             String kodeOpd,
             String namaOpd,
-            LocalDate tmtMulai
-    ) {
+            LocalDate tmtMulai) {
         return new JabatanPegawai(
                 null,
                 pegawaiId,
@@ -111,8 +110,7 @@ public record JabatanPegawai(
                 null,
 
                 null,
-                null
-        );
+                null);
     }
 
     public static JabatanPegawai plt(
@@ -122,8 +120,7 @@ public record JabatanPegawai(
             Long opdId,
             String kodeOpd,
             String namaOpd,
-            LocalDate tmtMulai
-    ) {
+            LocalDate tmtMulai) {
         return new JabatanPegawai(
                 null,
                 pegawaiId,
@@ -142,8 +139,7 @@ public record JabatanPegawai(
                 null,
 
                 null,
-                null
-        );
+                null);
     }
 
     public static JabatanPegawai plh(
@@ -153,8 +149,7 @@ public record JabatanPegawai(
             Long opdId,
             String kodeOpd,
             String namaOpd,
-            LocalDate tmtMulai
-    ) {
+            LocalDate tmtMulai) {
         return new JabatanPegawai(
                 null,
                 pegawaiId,
@@ -173,14 +168,12 @@ public record JabatanPegawai(
                 null,
 
                 null,
-                null
-        );
+                null);
     }
 
     public JabatanPegawai nonAktif(
             JabatanPegawaiAlasanBerakhir alasanBerakhir,
-            LocalDate tmtAkhir
-    ) {
+            LocalDate tmtAkhir) {
         return new JabatanPegawai(
                 id,
                 pegawaiId,
@@ -199,8 +192,7 @@ public record JabatanPegawai(
                 tmtAkhir,
 
                 createdDate,
-                null
-        );
+                null);
     }
 
     public static JabatanPegawai create(
@@ -211,8 +203,7 @@ public record JabatanPegawai(
             String kodeOpd,
             String namaOpd,
             JabatanPegawaiJenisPenugasan jenisPenugasan,
-            LocalDate tmtMulai
-    ) {
+            LocalDate tmtMulai) {
         return new JabatanPegawai(
                 null,
                 pegawaiId,
@@ -231,13 +222,11 @@ public record JabatanPegawai(
                 null,
 
                 null,
-                null
-        );
+                null);
     }
 
     public JabatanPegawai mutasi(
-            LocalDate tanggalMutasi
-    ) {
+            LocalDate tanggalMutasi) {
         return new JabatanPegawai(
                 id,
                 pegawaiId,
@@ -255,8 +244,7 @@ public record JabatanPegawai(
                 tanggalMutasi,
 
                 createdDate,
-                null
-        );
+                null);
     }
 
     public JabatanPegawaiView toJabatanPegawaiView() {
@@ -270,7 +258,6 @@ public record JabatanPegawai(
                 alasanBerakhir,
                 tmtMulai,
                 tmtAkhir,
-                createdDate
-        );
+                createdDate);
     }
 }

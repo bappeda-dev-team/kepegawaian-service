@@ -1,5 +1,10 @@
 package cc.kertaskerja.kepegawaian.role.web;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +18,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 
 import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
+import cc.kertaskerja.kepegawaian.common.web.PageResponse;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import cc.kertaskerja.kepegawaian.role.domain.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,10 +29,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/role")
-@Tag(
-        name = "Role",
-        description = "Master data Role"
-)
+@Tag(name = "Role", description = "Master data Role")
 public class RoleController {
     private final RoleService roleService;
 
@@ -35,21 +38,28 @@ public class RoleController {
     }
 
     @GetMapping
-    @Operation(
-        summary = "Daftar role",
-        description = "Daftar role yang ada"
-    )
+    @Operation(summary = "Daftar role paginate", description = "Daftar role yang ada dengan pagination")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Daftar Role berhasil diambil"
-        )
+            @ApiResponse(responseCode = "200", description = "Daftar Role berhasil diambil")
+    })
+    public WebResponse<PageResponse<RoleResponse>> findAll(
+            @ParameterObject @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<RoleResponse> responses = roleService.findAllWithPage(pageable)
+                .map(RoleResponse::from);
+
+        return WebResponse.success(PageResponse.from(responses));
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Daftar role", description = "Daftar role yang ada")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar Role berhasil diambil")
     })
     public WebResponse<List<RoleResponse>> findAll() {
         List<RoleResponse> responses = roleService.findAll()
-            .stream()
-            .map(RoleResponse::from)
-            .toList();
+                .stream()
+                .map(RoleResponse::from)
+                .toList();
 
         return WebResponse.success(responses);
     }
@@ -73,60 +83,37 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    @Operation(
-        summary = "Role by id",
-        description = "Cari role berdasarkan id"
-    )
+    @Operation(summary = "Role by id", description = "Cari role berdasarkan id")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Role ditemukan"
-        ),
-        @ApiResponse(responseCode = "400", description = "ID role tidak valid"),
-        @ApiResponse(responseCode = "404", description = "Role tidak ditemukan")
+            @ApiResponse(responseCode = "200", description = "Role ditemukan"),
+            @ApiResponse(responseCode = "400", description = "ID role tidak valid"),
+            @ApiResponse(responseCode = "404", description = "Role tidak ditemukan")
     })
     public WebResponse<RoleResponse> findById(
-        @Parameter(
-            description = "id role",
-            example = "1",
-            required = true
-        )
-        @PathVariable Long id
-    ) {
+            @Parameter(description = "id role", example = "1", required = true) @PathVariable Long id) {
         return WebResponse.success(
-            RoleResponse.from(roleService.findRoleById(id))
-        );
+                RoleResponse.from(roleService.findRoleById(id)));
     }
 
     @PostMapping
-    @Operation(
-            summary = "Tambah role baru",
-            description = "Menambahkan data role baru"
-    )
+    @Operation(summary = "Tambah role baru", description = "Menambahkan data role baru")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Role berhasil ditambahkan"),
             @ApiResponse(responseCode = "400", description = "Data tidak valid"),
             @ApiResponse(responseCode = "409", description = "Role sudah ada")
     })
     public WebResponse<RoleResponse> create(
-            @Valid @RequestBody RoleCreateRequest request
-    ) {
+            @Valid @RequestBody RoleCreateRequest request) {
         RoleResponse response = RoleResponse.from(roleService.create(
-                request.toCommand()
-        ));
+                request.toCommand()));
 
         return WebResponse.created(
                 "Role berhasil ditambahkan",
-                response
-        );
+                response);
     }
 
-
     @PutMapping("/{id}")
-    @Operation(
-            summary = "Update role",
-            description = "Update nama role"
-    )
+    @Operation(summary = "Update role", description = "Update nama role")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Role berhasil diupdate"),
             @ApiResponse(responseCode = "400", description = "Data tidak valid"),
@@ -134,34 +121,26 @@ public class RoleController {
     })
     public WebResponse<RoleResponse> create(
             @Valid @RequestBody RoleUpdateRequest request,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         RoleResponse response = RoleResponse.from(
-            roleService.update(id, request.toCommand())
-        );
+                roleService.update(id, request.toCommand()));
 
         return WebResponse.created(
                 "Role berhasil diperbarui",
-                response
-        );
+                response);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(
-        summary = "Hapus role",
-        description = "Hapus data role, by role id"
-    )
+    @Operation(summary = "Hapus role", description = "Hapus data role, by role id")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Role berhasil dihapus"),
-        @ApiResponse(responseCode = "404", description = "Role tidak ditemukan")
+            @ApiResponse(responseCode = "200", description = "Role berhasil dihapus"),
+            @ApiResponse(responseCode = "404", description = "Role tidak ditemukan")
     })
     public WebResponse<Void> delete(
-        @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         String namaRole = roleService.delete(id);
 
         return WebResponse.deleted(
-                "Role " + namaRole + " berhasil dihapus"
-        );
+                "Role " + namaRole + " berhasil dihapus");
     }
 }

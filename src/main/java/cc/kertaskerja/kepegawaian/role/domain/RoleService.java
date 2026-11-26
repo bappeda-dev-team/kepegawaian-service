@@ -2,6 +2,8 @@ package cc.kertaskerja.kepegawaian.role.domain;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,10 @@ public class RoleService {
 
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
+    }
+
+    public Page<Role> findAllWithPage(Pageable pageable) {
+        return roleRepository.findAll(pageable);
     }
 
     public List<Role> findAll() {
@@ -30,30 +36,38 @@ public class RoleService {
     }
 
     @Transactional
-    public Role create(Role newRole) {
-        String kodeRole = kodeRoleMaker(newRole.namaRole());
+    public Role create(Role.CreateCommand command) {
+        String namaRole = command.namaRole();
+        String kodeRole = kodeRoleMaker(command.namaRole());
+
+        if (roleRepository.existsByNamaRoleIgnoreCase(namaRole)) {
+            throw new RoleAlreadyExistsException(namaRole);
+        }
+
         if (roleRepository.existsByKodeRole(kodeRole)) {
             throw new RoleAlreadyExistsException(kodeRole);
         }
 
-        return roleRepository.save(newRole);
+        return roleRepository.save(
+                Role.of(kodeRole,
+                        namaRole,
+                        command.isAdmin()));
     }
 
     @Transactional
-    public Role update(Long id, Role updateRole) {
+    public Role update(Long id, Role.UpdateCommand command) {
         Role existingRole = findRoleById(id);
 
-        roleRepository.findByKodeRole(updateRole.kodeRole())
-                .filter(r -> !r.id().equals(id))
-                .ifPresent(role -> {
-                    throw new RoleNotFoundException(updateRole.kodeRole());
-                });
+        if (roleRepository.existsByNamaRoleIgnoreCaseAndIdNot(
+                command.namaRole(),
+                id)) {
+            throw new RoleAlreadyExistsException(command.namaRole());
+        }
 
         return roleRepository.save(
                 existingRole.update(
-                        updateRole.kodeRole(),
-                        updateRole.namaRole(),
-                        updateRole.isAdmin()));
+                        command.namaRole(),
+                        command.isAdmin()));
     }
 
     @Transactional

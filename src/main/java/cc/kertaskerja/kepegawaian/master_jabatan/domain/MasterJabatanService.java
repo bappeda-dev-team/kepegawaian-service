@@ -84,28 +84,40 @@ public class MasterJabatanService {
     }
 
     @Transactional
-    public MasterJabatan create(MasterJabatan masterJabatan) {
-        String kodeJabatan = createKodeJabatan(masterJabatan);
+    public MasterJabatan create(MasterJabatan.CreateCommand command) {
+        Long opdId = getOpdId(command.kodeOpd());
 
-        if (masterJabatanRepository.existsByOpdIdAndKodeJabatan(masterJabatan.opdId(), kodeJabatan)) {
-            throw new MasterJabatanAlreadyExistsException(masterJabatan.namaJabatan());
+        MasterJabatan jabatan = command.toDomain(opdId);
+
+        String kodeJabatan = createKodeJabatan(jabatan);
+
+        if (masterJabatanRepository.existsByOpdIdAndKodeJabatan(
+                opdId, kodeJabatan)) {
+            throw new MasterJabatanAlreadyExistsException(kodeJabatan);
         }
 
-        return masterJabatanRepository.save(MasterJabatan.of(
-                masterJabatan.opdId(),
-                kodeJabatan,
-                masterJabatan.namaJabatan(),
-                masterJabatan.jenjangJabatan(),
-                MasterJabatanStatus.AKTIF));
+        return masterJabatanRepository.save(
+                jabatan.withKodeJabatan(kodeJabatan));
+    }
+
+    private Long getOpdId(String kodeOpd) {
+        return opdRepository.findByKodeOpd(kodeOpd)
+                .orElseThrow(() -> new OpdNotFoundException(kodeOpd))
+                .id();
     }
 
     @Transactional
-    public MasterJabatan update(Long id, MasterJabatan updatedMasterJabatan) {
+    public MasterJabatan update(
+            Long id,
+            MasterJabatan.CreateCommand command) {
         MasterJabatan existing = findMasterJabatanById(id);
 
-        String kodeJabatan = createKodeJabatan(updatedMasterJabatan);
+        Long opdId = getOpdId(command.kodeOpd());
 
-        masterJabatanRepository.findByKodeJabatan(kodeJabatan)
+        String kodeJabatan = createKodeJabatan(command.toDomain(opdId));
+
+        masterJabatanRepository
+                .findByOpdIdAndKodeJabatan(opdId, kodeJabatan)
                 .filter(mj -> !mj.id().equals(id))
                 .ifPresent(mj -> {
                     throw new MasterJabatanAlreadyExistsException(kodeJabatan);
@@ -113,9 +125,9 @@ public class MasterJabatanService {
 
         return masterJabatanRepository.save(
                 existing.update(
-                        updatedMasterJabatan.opdId(),
-                        updatedMasterJabatan.namaJabatan(),
-                        updatedMasterJabatan.jenjangJabatan(),
+                        opdId,
+                        command.namaJabatan(),
+                        command.jenjangJabatan(),
                         kodeJabatan));
     }
 

@@ -2,12 +2,13 @@ package cc.kertaskerja.kepegawaian.role.domain;
 
 import java.time.Instant;
 
-import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+
+import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 
 @Table("role")
 public record Role(
@@ -24,6 +25,7 @@ public record Role(
         @LastModifiedDate Instant lastModifiedDate
 
 ) implements Optionable {
+
     public static Role of(
             String kodeRole,
             String namaRole,
@@ -37,10 +39,7 @@ public record Role(
                 null);
     }
 
-    public Role update(
-            String kodeRole,
-            String namaRole,
-            Boolean isAdmin) {
+    public Role update(String namaRole, Boolean isAdmin) {
         return new Role(
                 id,
                 kodeRole,
@@ -58,5 +57,15 @@ public record Role(
     @Override
     public String optionValue() {
         return id.toString();
+    }
+
+    public record CreateCommand(
+            String namaRole,
+            Boolean isAdmin) {
+    }
+
+    public record UpdateCommand(
+            String namaRole,
+            Boolean isAdmin) {
     }
 }

@@ -13,20 +13,22 @@ public interface MasterJabatanRepository extends CrudRepository<MasterJabatan, L
     List<MasterJabatan> findAllByOpdIdAndStatusJabatanOrderByNamaJabatan(Long opdId, MasterJabatanStatus jabatanStatus);
 
     @Query("""
-        SELECT m.*
-        FROM master_jabatan m
-        JOIN opd o ON o.id = m.opd_id
-        WHERE o.kode_opd = :kodeOpd
-          AND m.status_jabatan = :jabatanStatus
-        ORDER BY m.nama_jabatan ASC
-        """)
+            SELECT m.*
+            FROM master_jabatan m
+            JOIN opd o ON o.id = m.opd_id
+            WHERE o.kode_opd = :kodeOpd
+              AND m.status_jabatan = :jabatanStatus
+            ORDER BY m.nama_jabatan ASC
+            """)
     List<MasterJabatan> findAllByKodeOpdAndStatusJabatanOrderByNamaJabatan(
-        @Param("kodeOpd") String kodeOpd,
-        @Param("jabatanStatus") MasterJabatanStatus jabatanStatus);
+            @Param("kodeOpd") String kodeOpd,
+            @Param("jabatanStatus") MasterJabatanStatus jabatanStatus);
 
     boolean existsByOpdIdAndKodeJabatan(Long opdId, String kodeJabatan);
 
     Optional<MasterJabatan> findByKodeJabatan(String kodeJabatan);
+
+    Optional<MasterJabatan> findByOpdIdAndKodeJabatan(Long opdId, String kodeJabatan);
 
     List<MasterJabatan> findByKodeJabatanIn(List<String> kodeJabatans);
 }
