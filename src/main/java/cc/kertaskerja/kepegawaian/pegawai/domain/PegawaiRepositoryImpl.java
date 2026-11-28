@@ -3,11 +3,12 @@ package cc.kertaskerja.kepegawaian.pegawai.domain;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.util.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -154,6 +155,74 @@ public class PegawaiRepositoryImpl implements PegawaiRepositoryCustom {
         Long total = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM pegawai",
                 Long.class);
+
+        return new PageImpl<>(
+                pegawai,
+                pageable,
+                total != null ? total : 0);
+    }
+
+    @Override
+    public Page<Pegawai> findAllFiltered(
+            String kodeOpd,
+            String search,
+            Pageable pageable) {
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (StringUtils.hasText(kodeOpd)) {
+            where.append("""
+                    AND EXISTS (
+                        SELECT 1
+                        FROM jabatan_pegawai jp
+                        WHERE jp.pegawai_id = p.id
+                          AND jp.kode_opd = ?
+                    )
+                    """);
+
+            params.add(kodeOpd.strip());
+        }
+
+        if (StringUtils.hasText(search)) {
+            where.append("""
+                    AND (
+                        p.nama_pegawai ILIKE ?
+                        OR p.nip ILIKE ?
+                    )
+                    """);
+
+            String keyword = "%" + search.strip() + "%";
+
+            params.add(keyword);
+            params.add(keyword);
+        }
+
+        String sql = """
+                SELECT p.*
+                FROM pegawai p
+                """ + where + """
+                ORDER BY p.nama_pegawai ASC, p.id ASC
+                LIMIT ? OFFSET ?
+                """;
+
+        List<Object> queryParams = new ArrayList<>(params);
+        queryParams.add(pageable.getPageSize());
+        queryParams.add(pageable.getOffset());
+
+        List<Pegawai> pegawai = jdbcTemplate.query(
+                sql,
+                pegawaiPaginationRowMapper,
+                queryParams.toArray());
+
+        String countSql = """
+                SELECT COUNT(*)
+                FROM pegawai p
+                """ + where;
+
+        Long total = jdbcTemplate.queryForObject(
+                countSql,
+                Long.class,
+                params.toArray());
 
         return new PageImpl<>(
                 pegawai,

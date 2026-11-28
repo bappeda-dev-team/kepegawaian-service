@@ -29,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -73,7 +74,10 @@ public class PegawaiService {
     }
 
     public List<Pegawai> findAll(String kodeOpd, Long roleId) {
-        if (roleId == null) {
+        if (kodeOpd == null || kodeOpd.isBlank()) {
+            return pegawaiRepository.findTop20ByOrderByNamaPegawaiAsc();
+        }
+        else if (roleId == null) {
             return pegawaiRepository.findDistinctByJabatanPegawaiKodeOpd(kodeOpd);
         }
         return pegawaiRepository.findDistinctByJabatanPegawaiKodeOpdAndRoleId(kodeOpd, roleId);
@@ -86,8 +90,18 @@ public class PegawaiService {
         return pegawaiRepository.findDistinctByJabatanPegawaiOpdIdAndRoleId(opdId, roleId);
     }
 
-    public Page<Pegawai> allPegawai(Pageable pageable) {
-        return pegawaiRepository.findAll(pageable);
+    public Page<Pegawai> allPegawai(
+            String kodeOpd, String search,
+            Pageable pageable) {
+        kodeOpd = StringUtils.hasText(kodeOpd)
+                ? kodeOpd.strip()
+                : null;
+
+        search = StringUtils.hasText(search)
+                ? "%" + search.strip() + "%"
+                : null;
+
+        return pegawaiRepository.findAllFiltered(kodeOpd, search, pageable);
     }
 
     public PegawaiView findPegawaiByPegawaiId(String nip) {

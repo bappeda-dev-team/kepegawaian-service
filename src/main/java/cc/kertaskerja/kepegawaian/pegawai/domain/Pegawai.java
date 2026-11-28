@@ -1,52 +1,41 @@
 package cc.kertaskerja.kepegawaian.pegawai.domain;
 
+import java.time.Instant;
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import cc.kertaskerja.kepegawaian.common.domain.Optionable;
 
 @Table("pegawai")
 public record Pegawai(
-        @Id
-        Long id,
+        @Id Long id,
 
         String nip,
 
-        @Column("nama_pegawai")
-        String namaPegawai,
+        @Column("nama_pegawai") String namaPegawai,
 
-        @Column("jenis_kelamin")
-        String jenisKelamin,
+        @Column("jenis_kelamin") String jenisKelamin,
 
-        @Column("tempat_lahir")
-        String tempatLahir,
+        @Column("tempat_lahir") String tempatLahir,
 
-        @Column("tanggal_lahir")
-        LocalDate tanggalLahir,
+        @Column("tanggal_lahir") LocalDate tanggalLahir,
 
-        @Column("jenis_pegawai")
-        String jenisPegawai,
+        @Column("jenis_pegawai") String jenisPegawai,
 
-        @Column("status_pegawai")
-        PegawaiStatus statusPegawai,
+        @Column("status_pegawai") PegawaiStatus statusPegawai,
 
         String keterangan,
 
-        @Column("keycloak_user_id")
-        String keycloakUserId,
+        @Column("keycloak_user_id") String keycloakUserId,
 
-        @CreatedDate
-        @Column("created_date")
-        Instant createdDate,
+        @CreatedDate @Column("created_date") Instant createdDate,
 
-        @LastModifiedDate
-        @Column("last_modified_date")
-        Instant lastModifiedDate
-) {
+        @LastModifiedDate @Column("last_modified_date") Instant lastModifiedDate) implements Optionable {
 
     public static Pegawai of(
             String nip,
@@ -55,8 +44,7 @@ public record Pegawai(
             String tempatLahir,
             LocalDate tanggalLahir,
             String jenisPegawai,
-            PegawaiStatus statusPegawai
-    ) {
+            PegawaiStatus statusPegawai) {
         return new Pegawai(
                 null,
                 nip,
@@ -69,8 +57,7 @@ public record Pegawai(
                 null,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     public Pegawai update(
@@ -80,8 +67,7 @@ public record Pegawai(
             String tempatLahir,
             LocalDate tanggalLahir,
             String jenisPegawai,
-            PegawaiStatus statusPegawai
-    ) {
+            PegawaiStatus statusPegawai) {
         return new Pegawai(
                 id,
                 nip,
@@ -94,8 +80,7 @@ public record Pegawai(
                 keterangan,
                 keycloakUserId,
                 createdDate,
-                null
-        );
+                null);
     }
 
     public Pegawai withKeycloakUserId(String keycloakUserId) {
@@ -111,7 +96,20 @@ public record Pegawai(
                 keterangan,
                 keycloakUserId,
                 createdDate,
-                null
-        );
+                null);
+    }
+
+    private String namaNip() {
+        return namaPegawai + " (" + nip + ")";
+    }
+
+    @Override
+    public String optionLabel() {
+        return namaNip();
+    }
+
+    @Override
+    public String optionValue() {
+        return nip;
     }
 }

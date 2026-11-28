@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cc.kertaskerja.kepegawaian.common.web.OptionResponse;
 import cc.kertaskerja.kepegawaian.common.web.PageResponse;
 import cc.kertaskerja.kepegawaian.common.web.WebResponse;
 import cc.kertaskerja.kepegawaian.integration.simpeg.web.SimpegSyncRequest;
@@ -41,13 +42,29 @@ public class PegawaiController {
     }
 
     @GetMapping
+    @Operation(summary = "All Pegawai paginate", description = "Mengambil seluruh data pegawai dengan pagination")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar Pegawai berhasil diambil"),
+            @ApiResponse(responseCode = "400", description = "Bad Request, filter tidak valid"),
+    })
+    public WebResponse<PageResponse<PegawaiResponse>> findAll(
+            @ParameterObject @PageableDefault(size = 20, sort = "namaPegawai", direction = Sort.Direction.ASC) Pageable pageable,
+            @Parameter(description = "Kode Opd", example = "1.01.1.xx") @RequestParam(required = false) String kodeOpd,
+            @Parameter(description = "Search", example = "NAMAPEGAWAI | NIP") @RequestParam(required = false) String search) {
+        Page<PegawaiResponse> responses = pegawaiService.allPegawai(kodeOpd, search, pageable)
+                .map(PegawaiResponse::from);
+
+        return WebResponse.success(PageResponse.from(responses));
+    }
+
+    @GetMapping("/all")
     @Operation(summary = "Daftar Pegawai By Filter", description = "Mengambil seluruh data pegawai by opd id atau nama role")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Daftar Pegawai berhasil diambil"),
             @ApiResponse(responseCode = "400", description = "Bad Request, filter tidak valid"),
     })
     public WebResponse<List<PegawaiResponse>> findAll(
-            @Parameter(description = "Kode Opd", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd,
+        @Parameter(description = "Kode Opd", example = "1.01.1.xx", required = true) @RequestParam(required = false) String kodeOpd,
             @Parameter(description = "Role Id", example = "6") @RequestParam(required = false) Long roleId) {
         List<PegawaiResponse> responses = pegawaiService.findAll(kodeOpd, roleId)
                 .stream()
@@ -55,21 +72,6 @@ public class PegawaiController {
                 .toList();
 
         return WebResponse.success(responses);
-    }
-
-    @GetMapping("/all")
-    @Operation(summary = "All Pegawai", description = "Mengambil seluruh data pegawai")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Daftar Pegawai berhasil diambil"),
-    })
-    public WebResponse<PageResponse<PegawaiResponse>> allPegawais(
-            @ParameterObject @PageableDefault(size = 20, sort = "namaPegawai", direction = Sort.Direction.ASC) Pageable pageable
-
-    ) {
-        Page<PegawaiResponse> responses = pegawaiService.allPegawai(pageable)
-                .map(PegawaiResponse::from);
-
-        return WebResponse.success(PageResponse.from(responses));
     }
 
     @GetMapping("/{id}")
@@ -197,5 +199,25 @@ public class PegawaiController {
                 .toList();
 
         return WebResponse.success(responses);
+    }
+
+    @GetMapping("/options")
+    @Operation(summary = "Daftar Pegawai untuk dropdown", description = "Simplifikasi Data Pegawai untuk dropdown")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Daftar Pegawai berhasil diambil"),
+    })
+    public WebResponse<List<OptionResponse>> dropdownAll(
+            @Parameter(description = "Kode Opd", example = "1.01.1.xx", required = true) @RequestParam String kodeOpd,
+            @Parameter(description = "Role Id", example = "6") @RequestParam(required = false) Long roleId) {
+        List<OptionResponse> responses = pegawaiService.findAll(kodeOpd, roleId)
+                .stream()
+                .map(OptionResponse::of)
+                .toList();
+
+        return new WebResponse<>(
+                200,
+                "success",
+                "Dropdown opd",
+                responses);
     }
 }

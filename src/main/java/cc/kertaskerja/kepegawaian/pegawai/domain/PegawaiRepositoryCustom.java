@@ -25,4 +25,5 @@ public interface PegawaiRepositoryCustom {
             String roleNama);
 
     Page<Pegawai> findAll(Pageable pageable);
+    Page<Pegawai> findAllFiltered(String kodeOpd, String search, Pageable pageable);
 }

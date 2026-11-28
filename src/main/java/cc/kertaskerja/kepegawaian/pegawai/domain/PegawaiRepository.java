@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PegawaiRepository extends CrudRepository<Pegawai, Long>, PegawaiRepositoryCustom {
-    List<Pegawai> findAll();
+    List<Pegawai> findTop20ByOrderByNamaPegawaiAsc();
     Long countByStatusPegawai(PegawaiStatus statusPegawai);
     Optional<Pegawai> findByNip(String nip);
     boolean existsByNip(String nip);
